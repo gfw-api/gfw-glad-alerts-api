@@ -1,0 +1,71 @@
+{
+  "name": "gfw-glad-alerts-api",
+  "version": "1.0.0",
+  "description": "Global forest watch - Glad Alerts API",
+  "main": "index.js",
+  "scripts": {
+    "test-e2e": "NODE_PATH=app/src grunt --gruntfile app/Gruntfile.js e2eTest",
+    "test-unit": "NODE_PATH=app/src grunt --gruntfile app/Gruntfile.js unitTest",
+    "start": "NODE_PATH=app/src node app/index.js",
+    "test": "NODE_PATH=app/src NODE_ENV=test grunt --gruntfile app/Gruntfile.js test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gfw-api/gfw-glad-alerts-api.git"
+  },
+  "keywords": [
+    "gfw",
+    "api",
+    "microservice",
+    "node",
+    "javascript",
+    "koa"
+  ],
+  "author": "rrequero",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gfw-api/gfw-glad-alerts-api/issues"
+  },
+  "homepage": "https://github.com/gfw-api/gfw-glad-alerts-api#readme",
+  "dependencies": {
+    "async-client": "git+https://github.com/Vizzuality/async-client-nodejs.git#1.0.0",
+    "bunyan": "1.7.1",
+    "cartodb": "0.4.0",
+    "co": "4.6.0",
+    "co-request": "1.0.0",
+    "config": "1.19.0",
+    "geojsonhint": "1.2.0",
+    "jsonapi-serializer": "2.1.1",
+    "koa": "1.1.2",
+    "koa-bodyparser": "2.0.1",
+    "koa-cash": "2.0.0",
+    "koa-logger": "1.3.0",
+    "koa-mount": "1.3.0",
+    "koa-router": "5.4.0",
+    "koa-validate": "0.2.11",
+    "lru-cache": "4.0.1",
+    "microservice-client": "git+https://github.com/Vizzuality/microservice-client.git#1.1.2",
+    "mustache": "2.2.1",
+    "newrelic": "1.27.1"
+  },
+  "devDependencies": {
+    "co-mocha": "1.1.2",
+    "blanket": "1.2.2",
+    "grunt": "0.4.5",
+    "grunt-apidoc": "0.10.1",
+    "grunt-cli": "0.1.13",
+    "grunt-contrib-clean": "0.7.0",
+    "grunt-contrib-jshint": "0.12.0",
+    "grunt-contrib-watch": "0.6.1",
+    "grunt-express-server": "0.5.1",
+    "grunt-mocha-test": "0.12.7",
+    "grunt-notify": "0.4.3",
+    "load-grunt-tasks": "3.4.0",
+    "mocha": "2.4.5",
+    "mockery": "1.4.1",
+    "should": "8.2.2",
+    "should-http": "0.0.4",
+    "sinon": "1.17.3",
+    "supertest": "1.2.0"
+  }
+}

@@ -1,0 +1,8 @@
+base:
+  build: .
+  ports:
+    - "3600:3600"
+  environment:
+    PORT: 3600
+    NODE_PATH: app/src
+  container_name: gfw-glad-alerts-api

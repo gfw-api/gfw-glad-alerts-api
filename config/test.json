@@ -1,0 +1,8 @@
+{
+    "logger": {
+        "name": "gfw-glad-alerts-api-TEST",
+        "level": "debug",
+        "toFile": false,
+        "dirLogFile": null
+    }
+}

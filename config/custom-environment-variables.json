@@ -1,0 +1,5 @@
+{
+    "cartoDB":{
+        "user": "CARTODB_USER"
+    }
+}

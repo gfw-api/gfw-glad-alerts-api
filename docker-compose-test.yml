@@ -1,0 +1,8 @@
+test:
+  extends:
+    file: base.yml
+    service: base
+  container_name: gfw-glad-alerts-api-test
+  environment:
+    NODE_ENV: test
+  command: test

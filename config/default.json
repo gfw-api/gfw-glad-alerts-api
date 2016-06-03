@@ -1,0 +1,17 @@
+{
+    "logger": {
+        "name": "gfw-glad-alerts-api-DEV",
+        "level": "debug",
+        "toFile": false,
+        "dirLogFile": null
+    },
+    "service": {
+        "id": "gfw-glad-alerts-api_1.0.0",
+        "name": "GFW Glad Alerts API",
+        "port": 3600
+    },
+    "cartoDB":{
+        "user": null,
+        "apiUrl": "https://wri-01.cartodb.com/api/v2/sql"
+    }
+}

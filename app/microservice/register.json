@@ -1,0 +1,47 @@
+{
+    "id": "#(service.id)",
+    "name": "#(service.name)",
+    "urls": [{
+        "url": "/glad-alerts/admin/:iso",
+        "method": "GET",
+        "endpoints": [{
+            "method": "GET",
+            "path": "/api/v1/glad-alerts/admin/:iso"
+        }]
+    }, {
+        "url": "/glad-alerts/admin/:iso/:id1",
+        "method": "GET",
+        "endpoints": [{
+            "method": "GET",
+            "path": "/api/v1/glad-alerts/admin/:iso/:id1"
+        }]
+    }, {
+        "url": "/glad-alerts/use/:name/:id",
+        "method": "GET",
+        "endpoints": [{
+            "method": "GET",
+            "path": "/api/v1/glad-alerts/use/:name/:id"
+        }]
+    }, {
+        "url": "/glad-alerts/wdpa/:id",
+        "method": "GET",
+        "endpoints": [{
+            "method": "GET",
+            "path": "/api/v1/glad-alerts/wdpa/:id"
+        }]
+    }, {
+        "url": "/glad-alerts",
+        "method": "GET",
+        "endpoints": [{
+            "method": "GET",
+            "path": "/api/v1/glad-alerts"
+        }]
+    }, {
+        "url": "/glad-alerts/latest",
+        "method": "GET",
+        "endpoints": [{
+            "method": "GET",
+            "path": "/api/v1/glad-alerts/latest"
+        }]
+    }]
+}

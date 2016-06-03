@@ -1,0 +1,11 @@
+prod:
+  image: vizzuality/gfw-glad-alerts-api:1.0.0
+  ports:
+    - "3600"
+  env_file:
+    - prod.env
+  command: start
+  log_driver: "gelf"
+  restart: always
+  log_opt:
+    gelf-address: "udp://172.31.40.76:12201"

@@ -1,0 +1,368 @@
+swagger: '2.0'
+info:
+  title: GFW Terrai Alerts API
+  description: Global Forest Watch - Quicc Alerts API
+  version: "1.0.0"
+host: example.vizzuality.com
+
+schemes:
+  - https
+  - http
+
+produces:
+  - application/vnd.api+json
+
+# will be prefixed to all paths
+basePath: /api/v1
+
+paths:
+  /glad-alerts:
+    get:
+      operationId: world
+      produces:
+        - application/vnd.api+json
+      tags:
+        - GLAD
+      parameters:
+        - name: geostore
+          in: query
+          description: Hash of the geostore
+          required: true
+          type: string
+        - name: period
+          in: query
+          description: Period of time (default last day)
+          required: true
+          type: string
+
+      responses:
+        200:
+          description: Results obtained
+          schema:
+            $ref: '#/definitions/GLADALERTSAPI'
+        404:
+          description: Geostore not found
+          schema:
+            $ref: '#/definitions/Errors'
+        500:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Errors'
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/Errors'
+
+  /glad-alerts/use/{name}/{id}:
+    get:
+      operationId: use
+      produces:
+        - application/vnd.api+json
+      tags:
+        - GLAD
+      parameters:
+        - name: name
+          in: path
+          description: Analisys name (['mining', 'oilpalm', 'fiber', 'logging'])
+          required: true
+          type: string
+        - name: id
+          in: path
+          description: cartodbid
+          required: true
+          type: integer
+        - name: period
+          in: query
+          description: Period of time (default last day)
+          required: true
+          type: string
+      responses:
+        200:
+          description: Results obtained
+          schema:
+            $ref: '#/definitions/GLADALERTSAPI'
+        404:
+          description: Geostore not found
+          schema:
+            $ref: '#/definitions/Errors'
+        500:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Errors'
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/Errors'
+
+  /glad-alerts/wdpa/{id}:
+    get:
+      operationId: wdpa
+      produces:
+        - application/vnd.api+json
+      tags:
+        - GLAD
+      parameters:
+        - name: id
+          in: path
+          description: wdpa id
+          required: true
+          type: integer
+        - name: period
+          in: query
+          description: Period of time (default last day)
+          required: true
+          type: string
+
+      responses:
+        200:
+          description: Results obtained
+          schema:
+            $ref: '#/definitions/GLADALERTSAPI'
+        404:
+          description: Geostore not found
+          schema:
+            $ref: '#/definitions/Errors'
+        500:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Errors'
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/Errors'
+
+  /glad-alerts/admin/{iso}:
+    get:
+      operationId: getNational
+      produces:
+        - application/vnd.api+json
+      tags:
+        - GLAD
+      parameters:
+        - name: iso
+          in: path
+          description: ISO code
+          required: true
+          type: string
+        - name: period
+          in: query
+          description: Period of time (default last day)
+          required: true
+          type: string
+
+      responses:
+        200:
+          description: Results obtained
+          schema:
+            $ref: '#/definitions/GLADALERTSAPI'
+        404:
+          description: Geostore not found
+          schema:
+            $ref: '#/definitions/Errors'
+        500:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Errors'
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/Errors'
+
+  /glad-alerts/admin/{iso}/{id1}:
+    get:
+      operationId: getSubnational
+      produces:
+        - application/vnd.api+json
+      tags:
+        - GLAD
+      parameters:
+        - name: iso
+          in: path
+          description: ISO code
+          required: true
+          type: string
+        - name: id1
+          in: path
+          description: Region code
+          required: true
+          type: integer
+        - name: period
+          in: query
+          description: Period of time (default last day)
+          required: true
+          type: string
+
+      responses:
+        200:
+          description: Results obtained
+          schema:
+            $ref: '#/definitions/GLADALERTSAPI'
+        404:
+          description: Geostore not found
+          schema:
+            $ref: '#/definitions/Errors'
+        500:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Errors'
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/Errors'
+  /glad-alerts/latest:
+    get:
+      operationId: getLatest
+      produces:
+        - application/vnd.api+json
+      tags:
+        - GLAD
+      parameters:
+        - name: limit
+          in: query
+          description: Limit. Default 3
+          type: integer
+      responses:
+        200:
+          description: Results obtained
+          schema:
+            $ref: '#/definitions/GLADLATESTAPI'
+        404:
+          description: Geostore not found
+          schema:
+            $ref: '#/definitions/Errors'
+        500:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Errors'
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/Errors'
+
+definitions:
+  Errors:
+    type: object
+    description: Errors
+    properties:
+      errors:
+        type: array
+        items:
+          $ref: '#/definitions/Error'
+
+  Error:
+    type: object
+    properties:
+      id:
+        type: integer
+        format: int32
+        description: A unique identifier for this particular occurrence of the problem.
+      links:
+        type: object
+        description: A links object
+        properties:
+          about:
+            type: string
+            description: A link that leads to further details about this particular occurrence of the problem.
+      status:
+        type: string
+        description: The HTTP status code applicable to this problem, expressed as a string value
+      code:
+        type: string
+        description: An application-specific error code, expressed as a string value
+      title:
+        type: string
+        description: A short, human-readable summary of the problem that SHOULD NOT change from occurrence to occurrence of the problem, except for purposes of localization.
+      detail:
+        type: string
+        description: A human-readable explanation specific to this occurrence of the problem. Like title, this field's value can be localized
+      source:
+        type: object
+        description: An object containing references to the source of the error, optionally including any of the following members
+        properties:
+          pointer:
+            type: string
+            description: A JSON Pointer [RFC6901] to the associated entity in the request document
+          parameter:
+            type: string
+            description: A string indicating which URI query parameter caused the error.
+      meta:
+        type: object
+        description: A meta object containing non-standard meta-information about the error.
+
+  GLADLATESTAPI:
+    type: object
+    properties:
+      data:
+        properties:
+          $schema:
+            $ref: '#/definitions/GLADLATESTBody'
+  GLADLATESTBody:
+    type: object
+    properties:
+      type:
+        type: string
+        description: Resource type
+      id:
+        type: string
+        description: Resource id
+      attributes:
+        properties:
+          schema:
+            $ref: '#/definitions/GLADLATESTModel'
+
+  GLADLATESTModel:
+    type: object
+    properties:
+      date:
+        type: string
+        format: date
+
+  GLADALERTSAPI:
+    type: object
+    properties:
+      data:
+        properties:
+          $schema:
+            $ref: '#/definitions/GLADALERTSBody'
+
+  GLADALERTSBody:
+    type: object
+    properties:
+      type:
+        type: string
+        description: Resource type
+      id:
+        type: string
+        description: Resource id
+      attributes:
+        properties:
+          schema:
+            $ref: '#/definitions/GLADALERTSModel'
+
+  GLADALERTSModel:
+    type: object
+    properties:
+      value:
+        type: number
+        format: float
+      min-date:
+        type: string
+        format: date-time
+      max-date:
+        type: string
+        format: date-time
+      period:
+        type: string
+      download-urls:
+        type: object
+        properties:
+          csv:
+            type: string
+          geojson:
+            type: string
+          kml:
+            type: string
+          shp:
+            type: string
+          svg:
+            type: string
