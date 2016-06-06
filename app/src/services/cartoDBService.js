@@ -121,7 +121,7 @@ class CartoDBService {
     }
 
 
-    * getNational(iso, alertQuery, period = defaultDate()) {
+    * getNational(iso, period = defaultDate()) {
         logger.debug('Obtaining national of iso %s', iso);
         let periods = period.split(',');
         let params = {
@@ -129,9 +129,7 @@ class CartoDBService {
             begin: periods[0],
             end: periods[1]
         };
-        if(alertQuery){
-            params.additionalSelect = MIN_MAX_DATE_SQL;
-        }
+
         let data = yield executeThunk(this.client, ISO, params);
         if (data.rows && data.rows.length > 0) {
             let result = data.rows[0];
@@ -142,7 +140,7 @@ class CartoDBService {
         return null;
     }
 
-    * getSubnational(iso, id1, alertQuery, period = defaultDate()) {
+    * getSubnational(iso, id1, period = defaultDate()) {
         logger.debug('Obtaining subnational of iso %s and id1', iso, id1);
         let periods = period.split(',');
         let params = {
@@ -151,9 +149,7 @@ class CartoDBService {
             begin: periods[0],
             end: periods[1]
         };
-        if(alertQuery){
-            params.additionalSelect = MIN_MAX_DATE_SQL;
-        }
+
         let data = yield executeThunk(this.client, ID1, params);
         if (data.rows && data.rows.length > 0) {
             let result = data.rows[0];
@@ -164,7 +160,7 @@ class CartoDBService {
         return null;
     }
 
-    * getUse(useTable, id, alertQuery, period = defaultDate()) {
+    * getUse(useTable, id, period = defaultDate()) {
         logger.debug('Obtaining use with id %s', id);
         let periods = period.split(',');
         let params = {
@@ -173,9 +169,7 @@ class CartoDBService {
             begin: periods[0],
             end: periods[1]
         };
-        if(alertQuery){
-            params.additionalSelect = MIN_MAX_DATE_SQL;
-        }
+
         let data = yield executeThunk(this.client, USE, params);
 
         if (data.rows && data.rows.length > 0) {
@@ -186,7 +180,7 @@ class CartoDBService {
         return null;
     }
 
-    * getWdpa(wdpaid, alertQuery, period = defaultDate()) {
+    * getWdpa(wdpaid, period = defaultDate()) {
         logger.debug('Obtaining wpda of id %s', wdpaid);
         let periods = period.split(',');
         let params = {
@@ -194,9 +188,7 @@ class CartoDBService {
             begin: periods[0],
             end: periods[1]
         };
-        if(alertQuery){
-            params.additionalSelect = MIN_MAX_DATE_SQL;
-        }
+
         let data = yield executeThunk(this.client, WDPA, params);
         if (data.rows && data.rows.length > 0) {
             let result = data.rows[0];
@@ -221,7 +213,7 @@ class CartoDBService {
         return yield deserializer(result.body);
     }
 
-    * getWorld(hashGeoStore, alertQuery, period = defaultDate()) {
+    * getWorld(hashGeoStore, period = defaultDate()) {
         logger.debug('Obtaining world with hashGeoStore %s', hashGeoStore);
 
         let geostore = yield this.getGeostore(hashGeoStore);
@@ -233,9 +225,7 @@ class CartoDBService {
                 begin: periods[0],
                 end: periods[1]
             };
-            if(alertQuery){
-                params.additionalSelect = MIN_MAX_DATE_SQL;
-            }
+
             let data = yield executeThunk(this.client, WORLD, params);
             if (data.rows && data.rows.length > 0) {
                 let result = data.rows[0];

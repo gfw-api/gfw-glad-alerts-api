@@ -14,14 +14,14 @@ var router = new Router({
 class GladAlertsRouter {
     static * getNational() {
         logger.info('Obtaining national data');
-        let data = yield CartoDBService.getNational(this.params.iso, this.query.alertQuery, this.query.period);
+        let data = yield CartoDBService.getNational(this.params.iso, this.query.period);
 
         this.body = GladAlertsSerializer.serialize(data);
     }
 
     static * getSubnational() {
         logger.info('Obtaining subnational data');
-        let data = yield CartoDBService.getSubnational(this.params.iso, this.params.id1, this.query.alertQuery, this.query.period);
+        let data = yield CartoDBService.getSubnational(this.params.iso, this.params.id1, this.query.period);
         this.body = GladAlertsSerializer.serialize(data);
     }
 
@@ -47,14 +47,14 @@ class GladAlertsRouter {
         if (!useTable) {
             this.throw(404, 'Name not found');
         }
-        let data = yield CartoDBService.getUse(useTable, this.params.id, this.query.alertQuery, this.query.period);
+        let data = yield CartoDBService.getUse(useTable, this.params.id, this.query.period);
         this.body = GladAlertsSerializer.serialize(data);
 
     }
 
     static * wdpa() {
         logger.info('Obtaining wpda data with id %s', this.params.id);
-        let data = yield CartoDBService.getWdpa(this.params.id, this.query.alertQuery, this.query.period);
+        let data = yield CartoDBService.getWdpa(this.params.id, this.query.period);
         this.body = GladAlertsSerializer.serialize(data);
     }
 
@@ -62,7 +62,7 @@ class GladAlertsRouter {
         logger.info('Obtaining world data');
         this.assert(this.query.geostore, 400, 'GeoJSON param required');
         try {
-            let data = yield CartoDBService.getWorld(this.query.geostore, this.query.alertQuery, this.query.period);
+            let data = yield CartoDBService.getWorld(this.query.geostore, this.query.period);
 
             this.body = GladAlertsSerializer.serialize(data);
         } catch (err) {
