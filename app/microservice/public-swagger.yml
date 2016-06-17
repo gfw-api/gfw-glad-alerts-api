@@ -291,7 +291,7 @@ definitions:
     properties:
       data:
         properties:
-          $schema:
+          schema:
             $ref: '#/definitions/GLADLATESTBody'
   GLADLATESTBody:
     type: object
@@ -319,7 +319,7 @@ definitions:
     properties:
       data:
         properties:
-          $schema:
+          schema:
             $ref: '#/definitions/GLADALERTSBody'
 
   GLADALERTSBody:
