@@ -1,4 +1,4 @@
-swagger: '2.0'
+giswagger: '2.0'
 info:
   title: GFW Glad Alerts API
   description: Global Forest Watch - Glad Alerts API
@@ -294,7 +294,7 @@ definitions:
     properties:
       data:
         properties:
-          $schema:
+          schema:
             $ref: '#/definitions/GLADLATESTBody'
   GLADLATESTBody:
     type: object
@@ -322,7 +322,7 @@ definitions:
     properties:
       data:
         properties:
-          $schema:
+          schema:
             $ref: '#/definitions/GLADALERTSBody'
 
   GLADALERTSBody:
