@@ -23,8 +23,8 @@ const ISO = `with s as (select area_ha
             FROM gadm2_countries_simple
             WHERE iso = UPPER('{{iso}}'))
             SELECT COUNT(iso) AS value, MIN(date) as min_date, MAX(date) as max_date, area_ha
-                    FROM umd_alerts_agg_analysis f, s
-                    WHERE iso = UPPER('{{iso}}')
+                    FROM umd_alerts_agg_analysis f right join s
+                    ON iso = UPPER('{{iso}}')
                     AND date >= '{{begin}}'::date
                     AND date <= '{{end}}'::date
             group by area_ha `;
