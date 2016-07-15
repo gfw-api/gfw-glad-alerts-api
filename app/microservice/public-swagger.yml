@@ -342,15 +342,18 @@ definitions:
       value:
         type: number
         format: float
-      min-date:
+      areaHa:
+        type: number
+        format: float
+      minDate:
         type: string
         format: date-time
-      max-date:
+      maxDate:
         type: string
         format: date-time
       period:
         type: string
-      download-urls:
+      downloadUrls:
         type: object
         properties:
           csv:

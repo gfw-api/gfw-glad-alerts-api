@@ -44,7 +44,7 @@
     "koa-router": "5.4.0",
     "koa-validate": "0.2.11",
     "lru-cache": "4.0.1",
-    "microservice-client": "git+https://github.com/Vizzuality/microservice-client.git#1.1.2",
+    "microservice-client": "git+https://github.com/Vizzuality/microservice-client.git#1.2.4",
     "mustache": "2.2.1",
     "newrelic": "1.27.1"
   },

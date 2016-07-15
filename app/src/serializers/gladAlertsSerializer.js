@@ -3,13 +3,14 @@
 var logger = require('logger');
 var JSONAPISerializer = require('jsonapi-serializer').Serializer;
 var gladAlertsSerializer = new JSONAPISerializer('glad-alerts', {
-    attributes: ['value', 'period', 'min_date', 'max_date', 'downloadUrls'],
+    attributes: ['value', 'period', 'min_date', 'max_date', 'downloadUrls', 'area_ha'],
     typeForAttribute: function(attribute, record) {
         return attribute;
     },
     downloadUrls: {
         attributes: ['csv', 'geojson', 'kml', 'shp', 'svg']
-    }
+    },
+    keyForAttribute: 'camelCase'
 });
 
 var gladLatestSerializer = new JSONAPISerializer('imazon-latest', {
