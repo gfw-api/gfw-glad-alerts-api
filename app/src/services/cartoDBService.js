@@ -19,38 +19,45 @@ const WORLD = `SELECT COUNT(iso) AS value, MIN(date) as min_date, MAX(date) as m
                 3857),
               f.the_geom_webmercator) `;
 
-const ISO = `SELECT COUNT(iso) AS value, MIN(date) as min_date, MAX(date) as max_date
-        FROM umd_alerts_agg_analysis f
-        WHERE iso = UPPER('{{iso}}')
-            AND date >= '{{begin}}'::date
-            AND date <= '{{end}}'::date `;
+const ISO = `with s as (select area_ha
+            FROM gadm2_countries_simple
+            WHERE iso = UPPER('{{iso}}'))
+            SELECT COUNT(iso) AS value, MIN(date) as min_date, MAX(date) as max_date, area_ha
+                    FROM umd_alerts_agg_analysis f right join s
+                    ON iso = UPPER('{{iso}}')
+                    AND date >= '{{begin}}'::date
+                    AND date <= '{{end}}'::date
+            group by area_ha `;
 
-const ID1 = `WITH r as (SELECT name_1,iso, id_1, ST_RemoveRepeatedPoints(the_geom_webmercator, 1000) the_geom_webmercator
+const ID1 = `WITH r as (SELECT  ST_RemoveRepeatedPoints(the_geom_webmercator, 1000) the_geom_webmercator, area_ha
                    FROM gadm2_provinces_simple
                    WHERE iso = UPPER('{{iso}}')
                    AND id_1 = {{id1}} )
-        SELECT COUNT(f.iso) AS value, MIN(date) as min_date, MAX(date) as max_date
-        FROM umd_alerts_agg_analysis f INNER JOIN r ON st_intersects(r.the_geom_webmercator,f.the_geom_webmercator)
-        WHERE date >= '{{begin}}'::date
-        AND date <= '{{end}}'::date `;
+                SELECT COUNT(f.iso) AS value, MIN(date) as min_date, MAX(date) as max_date, area_ha
+                FROM umd_alerts_agg_analysis f INNER JOIN r ON st_intersects(r.the_geom_webmercator,f.the_geom_webmercator) and date >= '{{begin}}'::date
+                AND date <= '{{end}}'::date
+                group by area_ha
+                `;
 
-const USE = `SELECT COUNT(iso) AS value, MIN(date) as min_date, MAX(date) as max_date
-        FROM {{useTable}} u, umd_alerts_agg_analysis f
-        WHERE u.cartodb_id = {{pid}}
-              AND ST_Intersects(f.the_geom_webmercator, u.the_geom_webmercator)
-              AND date >= '{{begin}}'::date
-              AND date <= '{{end}}'::date `;
+const USE = `SELECT COUNT(iso) AS value, MIN(date) as min_date, MAX(date) as max_date, area_ha
+            FROM {{useTable}} u left join umd_alerts_agg_analysis f
+            on  ST_Intersects(f.the_geom_webmercator, u.the_geom_webmercator)
+            AND date >= '{{begin}}'::date
+            AND date <= '{{end}}'::date
+            WHERE u.cartodb_id = {{pid}}
+            group by area_ha`;
 
 const WDPA = `WITH p as (SELECT CASE when marine::numeric = 2 then null
         when ST_NPoints(the_geom)<=18000 THEN the_geom_webmercator
        WHEN ST_NPoints(the_geom) BETWEEN 18000 AND 50000 THEN ST_RemoveRepeatedPoints(the_geom_webmercator, 100)
       ELSE ST_RemoveRepeatedPoints(the_geom_webmercator, 1000)
-       END as the_geom_webmercator FROM wdpa_protected_areas where wdpaid={{wdpaid}})
-        SELECT COUNT(iso) AS value, MIN(date) as min_date, MAX(date) as max_date
-        FROM umd_alerts_agg_analysis f, p
-        WHERE ST_Intersects(f.the_geom_webmercator, p.the_geom_webmercator)
+       END as the_geom_webmercator, gis_area*100 as area_ha FROM wdpa_protected_areas where wdpaid={{wdpaid}})
+        SELECT COUNT(iso) AS value, MIN(date) as min_date, MAX(date) as max_date, area_ha
+        FROM umd_alerts_agg_analysis f right join p
+        on ST_Intersects(f.the_geom_webmercator, p.the_geom_webmercator)
               AND date >= '{{begin}}'::date
-              AND date <= '{{end}}'::date `;
+              AND date <= '{{end}}'::date
+            group by area_ha`;
 
 const LATEST = `SELECT DISTINCT date
         FROM umd_alerts_agg_analysis
@@ -72,7 +79,7 @@ var executeThunk = function(client, sql, params) {
 
 var deserializer = function(obj) {
     return function(callback) {
-        new JSONAPIDeserializer().deserialize(obj, callback);
+        new JSONAPIDeserializer({keyForAttribute: 'camelCase'}).deserialize(obj, callback);
     };
 };
 
@@ -229,7 +236,7 @@ class CartoDBService {
             let data = yield executeThunk(this.client, WORLD, params);
             if (data.rows && data.rows.length > 0) {
                 let result = data.rows[0];
-
+                result.area_ha = geostore.areaHa;
                 result.downloadUrls = this.getDownloadUrls(WORLD, params);
                 return result;
             }
