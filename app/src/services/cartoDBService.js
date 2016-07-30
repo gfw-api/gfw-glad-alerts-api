@@ -207,7 +207,7 @@ class CartoDBService {
 
     * getGeostore(hashGeoStore) {
         logger.debug('Obtaining geostore with hash %s', hashGeoStore);
-        let result = yield require('microservice-client').requestToMicroservice({
+        let result = yield require('vizz.microservice-client').requestToMicroservice({
             uri: '/geostore/' + hashGeoStore,
             method: 'GET',
             json: true
