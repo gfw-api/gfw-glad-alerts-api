@@ -1,6 +1,7 @@
 {
     "id": "#(service.id)",
     "name": "#(service.name)",
+    "tags": ["gfw"],
     "urls": [{
         "url": "/glad-alerts/admin/:iso",
         "method": "GET",
