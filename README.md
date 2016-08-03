@@ -1,10 +1,10 @@
-# GFW Fires API
+# GFW Glad Alerts API
 
 
 This repository is the microservice that it implement the glad alerts funcionality and exposed the /glad-alerts endpoints in the api-gateway
 
 [View the documentation for this
-API](http://gfw-api.github.io/swagger-ui/?url=https://raw.githubusercontent.com/gfw-api/gfw-glad-alerts-api/master/app/microservice/swagger.yml#/QUICC)
+API](http://gfw-api.github.io/swagger-ui/?url=https://raw.githubusercontent.com/gfw-api/gfw-glad-alerts-api/master/app/microservice/swagger.yml#/GLAD)
 
 ## First time user
 Perform the following steps:
