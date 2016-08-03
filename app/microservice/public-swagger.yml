@@ -1,7 +1,19 @@
 swagger: '2.0'
 info:
   title: GFW Glad Alerts API
-  description: Global Forest Watch - Glad Alerts API
+  description: |
+    ## Global Forest Watch - Glad Alerts API
+
+    Identifies areas of likely tree cover loss in near-real time
+
+    | Property | Value |
+    | --- | --- | --- |
+    | Coverage | Peru, Republic of Congo, and Kalimantan (Indonesia), eventually to cover the humid tropics |
+    | Resolution |30 × 30 meters (Landsat) |
+    | Source | UMD/GLAD |
+    | Timescale | January 1, 2015-present |
+    | Units | Alerts |
+    | Updates | Weekly |
   version: "1.0.0"
 host: example.vizzuality.com
 
