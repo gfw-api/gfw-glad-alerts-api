@@ -28,6 +28,7 @@
     "describe": false,
     "before": false,
     "after": false,
-    "it": false
+    "it": false,
+    "escape": false
   }
 }
