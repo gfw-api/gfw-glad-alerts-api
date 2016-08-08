@@ -3,7 +3,7 @@
 var logger = require('logger');
 var JSONAPISerializer = require('jsonapi-serializer').Serializer;
 var gladAlertsSerializer = new JSONAPISerializer('glad-alerts', {
-    attributes: ['value', 'period', 'min_date', 'max_date', 'downloadUrls', 'area_ha'],
+    attributes: ['value', 'period', 'minDate', 'maxDate', 'downloadUrls', 'areaHa'],
     typeForAttribute: function(attribute, record) {
         return attribute;
     },
@@ -14,9 +14,12 @@ var gladAlertsSerializer = new JSONAPISerializer('glad-alerts', {
 });
 
 var gladLatestSerializer = new JSONAPISerializer('imazon-latest', {
-    attributes: ['date'],
+    attributes: [ 'minDate', 'maxDate', 'counts'],
     typeForAttribute: function(attribute, record) {
         return attribute;
+    },
+    counts:{
+        attributes: ['2014', '2015', '2016', '2017']
     }
 });
 
