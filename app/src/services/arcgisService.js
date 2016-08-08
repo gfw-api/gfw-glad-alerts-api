@@ -105,7 +105,7 @@ class ArcgisService {
 
         for (let i = 0, length = rasters.length; i < length; i++){
             formFields.mosaicRule = JSON.stringify(ArcgisService.generateMosaicrule(rasters[1]));
-            logger.debug('Doing request to arcgis with url ', `${imageServer}computeHistograms`, 'and formfields');
+            logger.debug('Doing request to arcgis with url ', `${imageServer}computeHistograms`, 'and formfields', querystring.stringify(formFields));
             let result = yield coRequest({
                 uri: `${imageServer}computeHistograms`,
                 method: 'POST',
@@ -113,7 +113,7 @@ class ArcgisService {
                 json: true
             });
 
-            if(result.statusCode === 200) {
+            if(result.statusCode === 200 && !result.body.error) {
                 logger.debug('Response OK. body: ');
                 results[rasters[i]] = result.body;
             } else {
@@ -290,7 +290,7 @@ class ArcgisService {
         let data = yield CartoDBService.getGeostore(geostoreHash);
         if(data) {
             logger.debug('Obtained geojson. Obtaining alerts');
-            let alerts = yield ArcgisService.getAlertCount(begin, end, data.geojson, confirmedOnly);
+            let alerts = yield ArcgisService.getAlertCount(begin, end, data.geojson.features[0].geometry, confirmedOnly);
             alerts.areaHa = data.areaHa;
             return alerts;
         }
