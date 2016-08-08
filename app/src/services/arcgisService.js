@@ -104,7 +104,7 @@ class ArcgisService {
         let results = {};
 
         for (let i = 0, length = rasters.length; i < length; i++){
-            formFields.mosaicRule = JSON.stringify(ArcgisService.generateMosaicrule(rasters[1]));
+            formFields.mosaicRule = JSON.stringify(ArcgisService.generateMosaicrule(rasters[i]));
             logger.debug('Doing request to arcgis with url ', `${imageServer}computeHistograms`, 'and formfields', querystring.stringify(formFields));
             let result = yield coRequest({
                 uri: `${imageServer}computeHistograms`,
