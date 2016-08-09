@@ -79,6 +79,7 @@ class ArcgisService {
         let rasters = [];
 
         let begin = ArcgisService.rasterForDate(startDate, confirmed);
+
         if (rasters.indexOf(begin) === -1){
             rasters.push(begin);
         }
@@ -158,8 +159,8 @@ class ArcgisService {
                 }
                 let indexes = ArcgisService.datesToGridCodes(begin, end, rasters[i]);
                 logger.debug('counts', JSON.stringify(counts));
-                logger.debug('indexes', indexes);
-                let subCounts = counts.slice(indexes[0], indexes[1]);
+                logger.debug('indexes', indexes, 'and raster ', rasters[i]);
+                let subCounts = counts.slice(indexes[0], indexes[1] +1);
                 logger.debug('subCounts', JSON.stringify(subCounts));
                 let sum = 0;
                 if(subCounts && subCounts.length > 0) {
@@ -177,6 +178,19 @@ class ArcgisService {
         logger.info('Get alerts count with begin ', begin, ' , end', end, 'and confirmedOnly ', confirmedOnly);
         begin = new Date(begin);
         end = new Date(end);
+
+        let beginMin = new Date(2015, 0, 1, 0, 0, 0);
+        let endMax = new Date(2016, 11, 31, 0, 0, 0);
+        if(begin < beginMin) {
+            logger.debug('Setting minimun date to ', beginMin);
+            begin = beginMin;
+        }
+        if(end > endMax){
+            logger.debug('Setting maximun date to ', endMax);
+            end = endMax;
+        }
+
+
         let rasters = ArcgisService.rastersForPeriod(begin, end, confirmedOnly);
         logger.debug('rasters', rasters);
         try{
@@ -210,6 +224,12 @@ class ArcgisService {
         logger.info('Get full histogram');
         var begin = new Date(START_YEAR, 0, 1, 0,0,0);
         var end = new Date();
+
+        let endMax = new Date(2016, 11, 31, 0, 0, 0);
+        if(end > endMax){
+            logger.debug('Setting maximun date to ', endMax);
+            end = endMax;
+        }
 
         var rasters = ArcgisService.rastersForPeriod(begin, end);
 
