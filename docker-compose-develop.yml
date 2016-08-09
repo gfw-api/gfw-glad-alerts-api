@@ -7,6 +7,7 @@ develop:
     NODE_ENV: dev
     CARTODB_USER: wri-01
     API_GATEWAY_URL: http://192.168.99.100:8000
+    DATASET_GLAD_ID: 34a13298-90e8-4f87-9b75-b3eebe368288
   command: develop
   volumes:
     - ./app:/opt/gfw-glad-alerts-api/app

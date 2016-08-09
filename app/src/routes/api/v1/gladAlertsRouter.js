@@ -2,7 +2,7 @@
 
 var Router = require('koa-router');
 var logger = require('logger');
-var CartoDBService = require('services/cartoDBService');
+var ArcgisService = require('services/arcgisService');
 var NotFound = require('errors/notFound');
 var GladAlertsSerializer = require('serializers/gladAlertsSerializer');
 
@@ -11,22 +11,63 @@ var router = new Router({
     prefix: '/glad-alerts'
 });
 
+let getToday = function() {
+    let today = new Date();
+    return `${today.getFullYear().toString()}-${(today.getMonth()+1).toString()}-${today.getDate().toString()}`;
+};
+
+let getYesterday = function() {
+    let yesterday = new Date(Date.now() - (24 * 60 * 60 * 1000));
+    return `${yesterday.getFullYear().toString()}-${(yesterday.getMonth()+1).toString()}-${yesterday.getDate().toString()}`;
+};
+
+
+let defaultDate = function() {
+    let to = getToday();
+    let from = getYesterday();
+    return from + ',' + to;
+};
+
+let getDates = function(period) {
+    let dates = period.split(',');
+    return {
+        begin: new Date(dates[0]),
+        end: new Date(dates[1])
+    };
+};
+
+
 class GladAlertsRouter {
     static * getNational() {
         logger.info('Obtaining national data');
-        let data = yield CartoDBService.getNational(this.params.iso, this.query.period);
+        let period = this.query.period;
+        if(!period){
+            period = defaultDate();
+        }
+        let dates = getDates(period);
+        let data = yield ArcgisService.getAlertCountByISO(dates.begin, dates.end, this.params.iso, this.query.gladConfirmOnly);
 
         this.body = GladAlertsSerializer.serialize(data);
     }
 
     static * getSubnational() {
         logger.info('Obtaining subnational data');
-        let data = yield CartoDBService.getSubnational(this.params.iso, this.params.id1, this.query.period);
+        let period = this.query.period;
+        if(!period){
+            period = defaultDate();
+        }
+        let dates = getDates(period);
+        let data = yield ArcgisService.getAlertCountByID1(dates.begin, dates.end, this.params.iso, this.params.id1, this.query.gladConfirmOnly);
         this.body = GladAlertsSerializer.serialize(data);
     }
 
     static * use() {
         logger.info('Obtaining use data with name %s and id %s', this.params.name, this.params.id);
+        let period = this.query.period;
+        if(!period){
+            period = defaultDate();
+        }
+        let dates = getDates(period);
         let useTable = null;
         switch (this.params.name) {
             case 'mining':
@@ -47,14 +88,19 @@ class GladAlertsRouter {
         if (!useTable) {
             this.throw(404, 'Name not found');
         }
-        let data = yield CartoDBService.getUse(useTable, this.params.id, this.query.period);
+        let data = yield ArcgisService.getAlertCountByUSE(dates.begin, dates.end, useTable, this.params.id, this.query.gladConfirmOnly);
         this.body = GladAlertsSerializer.serialize(data);
 
     }
 
     static * wdpa() {
         logger.info('Obtaining wpda data with id %s', this.params.id);
-        let data = yield CartoDBService.getWdpa(this.params.id, this.query.period);
+        let period = this.query.period;
+        if(!period){
+            period = defaultDate();
+        }
+        let dates = getDates(period);
+        let data = yield ArcgisService.getAlertCountByWDPA(dates.begin, dates.end, this.params.id, this.query.gladConfirmOnly);
         this.body = GladAlertsSerializer.serialize(data);
     }
 
@@ -62,7 +108,12 @@ class GladAlertsRouter {
         logger.info('Obtaining world data');
         this.assert(this.query.geostore, 400, 'GeoJSON param required');
         try {
-            let data = yield CartoDBService.getWorld(this.query.geostore, this.query.period);
+            let period = this.query.period;
+            if(!period){
+                period = defaultDate();
+            }
+            let dates = getDates(period);
+            let data = yield ArcgisService.getAlertCountByGeostore(dates.begin, dates.end, this.query.geostore, this.query.gladConfirmOnly);
 
             this.body = GladAlertsSerializer.serialize(data);
         } catch (err) {
@@ -77,7 +128,7 @@ class GladAlertsRouter {
 
     static * latest() {
         logger.info('Obtaining latest data');
-        let data = yield CartoDBService.latest(this.query.limit);
+        let data = yield ArcgisService.getFullHistogram(this.query.limit);
         this.body = GladAlertsSerializer.serializeLatest(data);
     }
 
