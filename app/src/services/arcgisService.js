@@ -1,5 +1,6 @@
 'use strict';
 var logger = require('logger');
+var config = require('config');
 var coRequest = require('co-request');
 var CartoDB = require('cartodb');
 var CartoDBService = require('services/cartoDBService');
@@ -241,13 +242,57 @@ class ArcgisService {
         };
     }
 
+    static generateQuery(iso, id1, dateYearBegin, yearBegin, dateYearEnd, yearEnd, confirmed){
+        let query = `select sum(count::int) from table where country_iso='${iso}' ${id1 ? ` and state_iso = '${iso}${id1}' `: ''} ${confirmed ? ' and confidence like \'confirmed\' ' : ''}`;
+        if(yearBegin === yearEnd){
+            query += ` and year like '${yearBegin}' and day::int >= ${dateYearBegin} and day::int <= ${dateYearEnd} `;
+        } else {
+            query += ' (';
+            for (let i = dateYearBegin; i <= dateYearEnd; i++) {
+                if(i === dateYearBegin){
+                    query += ` and (year like '${i}' and day::int >= ${dateYearBegin}) `;
+                } else if(i === dateYearEnd) {
+                    query += ` and (year like '${i}' and day::int <= ${dateYearEnd}) `;
+                } else {
+                    query += ` and year like '${i}' `;
+                }
+            }
+            query += ')';
+        }
+        logger.debug('Query result: ', query);
+        return query;
+    }
+
+    static * getAlertCountByJSON(begin, end, iso, id1, confirmedOnly ){
+        logger.debug('Obtaining count with iso %s and id1 %s', iso, id1);
+        let dateYearBegin = ArcgisService.getYearDay(begin);
+        let yearBegin = begin.getFullYear();
+        let dateYearEnd = ArcgisService.getYearDay(end);
+        let yearEnd = begin.getFullYear();
+
+        let query = ArcgisService.generateQuery(iso, id1, dateYearBegin, yearBegin, dateYearEnd, yearEnd, confirmedOnly);
+        logger.debug('Doing request to ', `/query/${config.get('dataset.idGlad')}?sql=${query}`);
+        let result = yield require('vizz.microservice-client').requestToMicroservice({
+            uri: `/query/${config.get('dataset.idGlad')}?sql=${query}`,
+            method: 'GET',
+            json: true
+        });
+        if (result.statusCode !== 200) {
+            console.error('Error doing query:');
+            // console.error(result);
+            throw new Error('Error doing query');
+        } else {
+            return result.data;
+        }
+    }
+
     static * getAlertCountByISO(begin, end, iso, confirmedOnly){
         logger.info('Get alerts by iso %s', iso);
         let data = yield CartoDBService.getNational(iso);
         if(data) {
             logger.debug('Obtained geojson. Obtaining alerts');
-            let alerts = yield ArcgisService.getAlertCount(begin, end, data.geojson, confirmedOnly);
-            alerts.areaHa = data.areaHa;
+            let alerts = yield ArcgisService.getAlertCountByJSON(begin, end, iso, null, confirmedOnly);
+            // alerts.areaHa = data.areaHa;
             return alerts;
         }
         return null;
@@ -257,8 +302,8 @@ class ArcgisService {
         let data = yield CartoDBService.getSubnational(iso, id1);
         if(data) {
             logger.debug('Obtained geojson. Obtaining alerts');
-            let alerts = yield ArcgisService.getAlertCount(begin, end, data.geojson, confirmedOnly);
-            alerts.areaHa = data.areaHa;
+            let alerts = yield ArcgisService.getAlertCountByJSON(begin, end, iso, id1, confirmedOnly);
+            // alerts.areaHa = data.areaHa;
             return alerts;
         }
         return null;

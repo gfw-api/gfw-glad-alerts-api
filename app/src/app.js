@@ -38,7 +38,7 @@ app.use(function*(next) {
 });
 
 var cache = require('lru-cache')({
-    maxAge: 30000 // global max age
+    maxAge: 24 * 60 * 60 * 10000 // 24h
 });
 
 app.use(require('koa-cash')({

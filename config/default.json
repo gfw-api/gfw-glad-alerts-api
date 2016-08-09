@@ -13,5 +13,8 @@
     "cartoDB":{
         "user": null,
         "apiUrl": "https://wri-01.cartodb.com/api/v2/sql"
+    },
+    "dataset":{
+        "idGlad": null
     }
 }

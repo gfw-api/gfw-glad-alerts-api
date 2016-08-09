@@ -1,5 +1,8 @@
 {
     "cartoDB":{
         "user": "CARTODB_USER"
+    },
+    "dataset":{
+        "idGlad": "DATASET_GLAD_ID"
     }
 }
