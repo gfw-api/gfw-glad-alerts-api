@@ -120,7 +120,11 @@ class ArcgisService {
                 results[rasters[i]] = result.body;
             } else {
                 logger.error('Error to obtain data in arcgis');
-                throw new Error('Error to obtain data in arcgis, for raster', rasters[i]);
+                if(result.statusCode === 400 || result.statusCode === 500){
+                    throw new Error('The area you have selected is quite large and cannot be analyzed on-the-fly. Please select a smaller area and try again.', rasters[i]);
+                } else {
+                    throw new Error('Error obtaining data in Arcgis');
+                }
             }
         }
         logger.debug('Results', results);
