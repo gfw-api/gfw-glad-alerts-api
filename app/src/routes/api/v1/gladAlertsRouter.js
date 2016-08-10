@@ -48,6 +48,7 @@ class GladAlertsRouter {
         let data = yield ArcgisService.getAlertCountByISO(dates.begin, dates.end, this.params.iso, this.query.gladConfirmOnly);
 
         this.body = GladAlertsSerializer.serialize(data);
+
     }
 
     static * getSubnational() {
