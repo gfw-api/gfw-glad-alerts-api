@@ -120,7 +120,7 @@ class ArcgisService {
                 results[rasters[i]] = result.body;
             } else {
                 logger.error('Error to obtain data in arcgis');
-                if(result.statusCode === 400 || result.statusCode === 500){
+                if(result.body.error.code === 400 || result.statusCode === 500){
                     throw new Error('The area you have selected is quite large and cannot be analyzed on-the-fly. Please select a smaller area and try again.', rasters[i]);
                 } else {
                     throw new Error('Error obtaining data in Arcgis');
@@ -254,7 +254,7 @@ class ArcgisService {
                 logger.debug('Response OK. body: ');
                 results[ArcgisService.yearForRaster(rasters[i])] = result.body.histograms[0].counts;
             } else {
-                if(result.statusCode === 400 || result.statusCode === 500){
+                if(result.body.error.code === 400 || result.statusCode === 500){
                     throw new Error('The area you have selected is quite large and cannot be analyzed on-the-fly. Please select a smaller area and try again.', rasters[i]);
                 } else {
                     throw new Error('Error obtaining data in Arcgis');
@@ -270,18 +270,22 @@ class ArcgisService {
     }
 
     static generateQuery(iso, id1, dateYearBegin, yearBegin, dateYearEnd, yearEnd, confirmed){
-        let query = `select sum(count::int) from table where country_iso='${iso}' ${id1 ? ` and state_iso = '${iso}${id1}' `: ''} ${confirmed ? ' and confidence like \'confirmed\' ' : ''}`;
+        let query = `select sum(count) as value from table where country_iso='${iso}' ${id1 ? ` and state_iso = '${iso}${id1}' `: ''} ${confirmed ? ' and confidence like \'confirmed\' ' : ''}`;
         if(yearBegin === yearEnd){
             query += ` and year like '${yearBegin}' and day::int >= ${dateYearBegin} and day::int <= ${dateYearEnd} `;
         } else {
-            query += ' (';
-            for (let i = dateYearBegin; i <= dateYearEnd; i++) {
-                if(i === dateYearBegin){
-                    query += ` and (year like '${i}' and day::int >= ${dateYearBegin}) `;
-                } else if(i === dateYearEnd) {
-                    query += ` and (year like '${i}' and day::int <= ${dateYearEnd}) `;
+            query += ' and (';
+            logger.debug('Datebegin', dateYearBegin, 'end', dateYearEnd);
+            for (let i = yearBegin; i <= yearEnd; i++) {
+                if(i > yearBegin){
+                    query +=' or ';
+                }
+                if(i === yearBegin){
+                    query += `(year like '${i}' and day::int >= ${dateYearBegin})`;
+                } else if(i === yearEnd) {
+                    query += `(year like '${i}' and day::int <= ${dateYearEnd})`;
                 } else {
-                    query += ` and year like '${i}' `;
+                    query += `(year like '${i}')`;
                 }
             }
             query += ')';
@@ -295,21 +299,22 @@ class ArcgisService {
         let dateYearBegin = ArcgisService.getYearDay(begin);
         let yearBegin = begin.getFullYear();
         let dateYearEnd = ArcgisService.getYearDay(end);
-        let yearEnd = begin.getFullYear();
+        let yearEnd = end.getFullYear();
 
         let query = ArcgisService.generateQuery(iso, id1, dateYearBegin, yearBegin, dateYearEnd, yearEnd, confirmedOnly);
         logger.debug('Doing request to ', `/query/${config.get('dataset.idGlad')}?sql=${query}`);
         let result = yield require('vizz.microservice-client').requestToMicroservice({
-            uri: `/query/${config.get('dataset.idGlad')}?sql=${query}`,
+            uri: encodeURI(`/query/${config.get('dataset.idGlad')}?sql=${query}`),
             method: 'GET',
             json: true
         });
+
         if (result.statusCode !== 200) {
             console.error('Error doing query:');
             // console.error(result);
             throw new Error('Error doing query');
         } else {
-            return result.data;
+            return result.body.data.attributes.rows[0];
         }
     }
 
@@ -319,7 +324,12 @@ class ArcgisService {
         if(data) {
             logger.debug('Obtained geojson. Obtaining alerts');
             let alerts = yield ArcgisService.getAlertCountByJSON(begin, end, iso, null, confirmedOnly);
-            // alerts.areaHa = data.areaHa;
+            if(!alerts){
+                alerts = {
+                    value: 0
+                };
+            }
+            alerts.areaHa = data.areaHa;
             return alerts;
         }
         return null;
@@ -330,7 +340,12 @@ class ArcgisService {
         if(data) {
             logger.debug('Obtained geojson. Obtaining alerts');
             let alerts = yield ArcgisService.getAlertCountByJSON(begin, end, iso, id1, confirmedOnly);
-            // alerts.areaHa = data.areaHa;
+            if(!alerts){
+                alerts = {
+                    value: 0
+                };
+            }
+            alerts.areaHa = data.areaHa;
             return alerts;
         }
         return null;
