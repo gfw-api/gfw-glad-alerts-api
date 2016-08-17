@@ -314,7 +314,7 @@ class ArcgisService {
             // console.error(result);
             throw new Error('Error doing query');
         } else {
-            return result.body.data.attributes.rows[0];
+            return result.body.data[0];
         }
     }
 
