@@ -272,7 +272,7 @@ class ArcgisService {
     static generateQuery(iso, id1, dateYearBegin, yearBegin, dateYearEnd, yearEnd, confirmed){
         let query = `select sum(count) as value from table where country_iso='${iso}' ${id1 ? ` and state_iso = '${iso}${id1}' `: ''} ${confirmed ? ' and confidence like \'confirmed\' ' : ''}`;
         if(yearBegin === yearEnd){
-            query += ` and year like '${yearBegin}' and day::int >= ${dateYearBegin} and day::int <= ${dateYearEnd} `;
+            query += ` and year like '${yearBegin}' and day::int >= ${dateYearBegin} and day::int <= ${dateYearEnd}`;
         } else {
             query += ' and (';
             logger.debug('Datebegin', dateYearBegin, 'end', dateYearEnd);
