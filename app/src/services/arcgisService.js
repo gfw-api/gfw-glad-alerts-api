@@ -310,7 +310,7 @@ class ArcgisService {
         });
 
         if (result.statusCode !== 200) {
-            console.error('Error doing query:');
+            console.error('Error doing query:', result.body);
             // console.error(result);
             throw new Error('Error doing query');
         } else {
