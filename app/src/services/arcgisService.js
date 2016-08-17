@@ -302,7 +302,7 @@ class ArcgisService {
         let yearEnd = end.getFullYear();
 
         let query = ArcgisService.generateQuery(iso, id1, dateYearBegin, yearBegin, dateYearEnd, yearEnd, confirmedOnly);
-        logger.debug('Doing request to ', `/query/${config.get('dataset.idGlad')}?sql=${query}`);
+        logger.info('Doing request to ', `/query/${config.get('dataset.idGlad')}?sql=${query}`);
         let result = yield require('vizz.microservice-client').requestToMicroservice({
             uri: encodeURI(`/query/${config.get('dataset.idGlad')}?sql=${query}`),
             method: 'GET',
@@ -310,7 +310,7 @@ class ArcgisService {
         });
 
         if (result.statusCode !== 200) {
-            console.error('Error doing query:', result.body);
+            logger.error('Error doing query:', result.body);
             // console.error(result);
             throw new Error('Error doing query');
         } else {
