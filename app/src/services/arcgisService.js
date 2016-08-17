@@ -272,7 +272,7 @@ class ArcgisService {
     static generateQuery(iso, id1, dateYearBegin, yearBegin, dateYearEnd, yearEnd, confirmed){
         let query = `select sum(count) as value from table where country_iso='${iso}' ${id1 ? ` and state_iso = '${iso}${id1}' `: ''} ${confirmed ? ' and confidence like \'confirmed\' ' : ''}`;
         if(yearBegin === yearEnd){
-            query += ` and year like '${yearBegin}' and day::int >= ${dateYearBegin} and day::int <= ${dateYearEnd} `;
+            query += ` and year like '${yearBegin}' and day::int >= ${dateYearBegin} and day::int <= ${dateYearEnd}`;
         } else {
             query += ' and (';
             logger.debug('Datebegin', dateYearBegin, 'end', dateYearEnd);
@@ -302,7 +302,7 @@ class ArcgisService {
         let yearEnd = end.getFullYear();
 
         let query = ArcgisService.generateQuery(iso, id1, dateYearBegin, yearBegin, dateYearEnd, yearEnd, confirmedOnly);
-        logger.debug('Doing request to ', `/query/${config.get('dataset.idGlad')}?sql=${query}`);
+        logger.info('Doing request to ', `/query/${config.get('dataset.idGlad')}?sql=${query}`);
         let result = yield require('vizz.microservice-client').requestToMicroservice({
             uri: encodeURI(`/query/${config.get('dataset.idGlad')}?sql=${query}`),
             method: 'GET',
@@ -310,7 +310,7 @@ class ArcgisService {
         });
 
         if (result.statusCode !== 200) {
-            console.error('Error doing query:', result.body);
+            logger.error('Error doing query:', result.body);
             // console.error(result);
             throw new Error('Error doing query');
         } else {
