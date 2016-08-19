@@ -8,4 +8,4 @@ class ArcgisError extends Error{
         this.message = message;
     }
 }
-module.exports = NotFound;
+module.exports = ArcgisError;
