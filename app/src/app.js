@@ -8,6 +8,7 @@ var bodyParser = require('koa-bodyparser');
 var koaLogger = require('koa-logger');
 var loader = require('loader');
 var validate = require('koa-validate');
+var ArcgisError = require('errors/arcgisError');
 var ErrorSerializer = require('serializers/errorSerializer');
 
 // instance of koa
@@ -30,7 +31,8 @@ app.use(function*(next) {
         this.status = err.status || 500;
         logger.error(err);
         this.body = ErrorSerializer.serializeError(this.status, err.message);
-        if (process.env.NODE_ENV === 'prod' && this.status === 500) {
+
+        if (!(err instanceof ArcgisError) && process.env.NODE_ENV === 'prod' && this.status === 500) {
             this.body = 'Unexpected error';
         }
     }

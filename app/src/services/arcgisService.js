@@ -4,6 +4,7 @@ var config = require('config');
 var coRequest = require('co-request');
 var CartoDB = require('cartodb');
 var CartoDBService = require('services/cartoDBService');
+const ArcgisError = require('errors/arcgisError');
 const querystring = require('querystring');
 
 const IMAGE_SERVER = 'http://gis-gfw.wri.org/arcgis/rest/services/image_services/glad_alerts_analysis/ImageServer/';
@@ -121,9 +122,9 @@ class ArcgisService {
             } else {
                 logger.error('Error to obtain data in arcgis');
                 if(result.body.error.code === 400 || result.body.error.code === 500 || result.statusCode === 500){
-                    throw new Error('The area you have selected is quite large and cannot be analyzed on-the-fly. Please select a smaller area and try again.', rasters[i]);
+                    throw new ArcgisError('The area you have selected is quite large and cannot be analyzed on-the-fly. Please select a smaller area and try again.', rasters[i]);
                 } else {
-                    throw new Error('Error obtaining data in Arcgis');
+                    throw new ArcgisError('Error obtaining data in Arcgis');
                 }
             }
         }
@@ -270,7 +271,7 @@ class ArcgisService {
     }
 
     static generateQuery(iso, id1, dateYearBegin, yearBegin, dateYearEnd, yearEnd, confirmed){
-        let query = `select sum(count) as value from table where country_iso='${iso}' ${id1 ? ` and state_iso = '${iso}${id1}' `: ''} ${confirmed ? ' and confidence like \'confirmed\' ' : ''}`;
+        let query = `select sum(count) as value from table where country_id='${iso}' ${id1 ? ` and state_id = '${id1}' `: ''} ${confirmed ? ' and confidence like \'confirmed\' ' : ''}`;
         if(yearBegin === yearEnd){
             query += ` and year like '${yearBegin}' and day::int >= ${dateYearBegin} and day::int <= ${dateYearEnd}`;
         } else {
