@@ -149,7 +149,7 @@ router.get('/admin/:iso/:id1', isCached, GladAlertsRouter.getSubnational);
 router.get('/use/:name/:id', isCached, GladAlertsRouter.use);
 router.get('/wdpa/:id', isCached, GladAlertsRouter.wdpa);
 router.get('/', isCached, GladAlertsRouter.world);
-router.get('/latest', isCached, GladAlertsRouter.latest);
+router.get('/latest', GladAlertsRouter.latest);
 
 
 module.exports = router;
