@@ -221,7 +221,7 @@ class ArcgisService {
         let year = (Object.keys(histograms).length -1) + START_YEAR;
         let latestHistogramKey = Math.max.apply(null, Object.keys(histograms));
         let dayNumber = histograms[latestHistogramKey].length;
-        let resultDate = new Date(new Date(year, 0, 1, 0,0,0).getTime() + (dayNumber * 24 * 60 * 60* 1000));
+        let resultDate = new Date(new Date(year, 0, 1, 0,0,0).getTime() + ((dayNumber - 1) * 24 * 60 * 60* 1000));
         return resultDate;
     }
 
