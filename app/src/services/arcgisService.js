@@ -81,11 +81,11 @@ class ArcgisService {
 
         let begin = ArcgisService.rasterForDate(startDate, confirmed);
 
-        if (rasters.indexOf(begin) === -1){
+        if (begin !== undefined && rasters.indexOf(begin) === -1){
             rasters.push(begin);
         }
         let end = ArcgisService.rasterForDate(endDate, confirmed);
-        if (rasters.indexOf(end) === -1){
+        if (end !== undefined && rasters.indexOf(end) === -1){
             rasters.push(end);
         }
 
@@ -137,17 +137,17 @@ class ArcgisService {
 
         let indexes = [];
         if(begin.getFullYear() === rasterYear) {
-            indexes.push(ArcgisService.getYearDay(begin) -1);
+            indexes.push(ArcgisService.getYearDay(begin));
         } else {
             var dateBegin = new Date(Date.UTC(begin.getFullYear(), 0, 1, 0,0,0));
-            indexes.push(ArcgisService.getYearDay(dateBegin) -1);
+            indexes.push(ArcgisService.getYearDay(dateBegin));
         }
 
         if(end.getFullYear() === rasterYear) {
-            indexes.push(ArcgisService.getYearDay(end) -1);
+            indexes.push(ArcgisService.getYearDay(end));
         } else {
             var dateEnd = new Date(Date.UTC(end.getFullYear(), 11, 31, 0,0,0));
-            indexes.push(ArcgisService.getYearDay(dateEnd) -1);
+            indexes.push(ArcgisService.getYearDay(dateEnd));
         }
         return indexes;
     }
