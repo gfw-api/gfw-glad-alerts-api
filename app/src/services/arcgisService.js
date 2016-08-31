@@ -253,7 +253,9 @@ class ArcgisService {
 
             if(result.statusCode === 200) {
                 logger.debug('Response OK. body: ');
-                results[ArcgisService.yearForRaster(rasters[i])] = result.body.histograms[0].counts;
+                if(result.body.histograms[0].counts){
+                    results[ArcgisService.yearForRaster(rasters[i])] = result.body.histograms[0].counts.slice(1, result.body.histograms[0].counts.length);
+                }
             } else {
                 if(result.body.error.code === 400 || result.body.error.code === 500 || result.statusCode === 500){
                     throw new Error('The area you have selected is quite large and cannot be analyzed on-the-fly. Please select a smaller area and try again.', rasters[i]);
