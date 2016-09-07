@@ -53,7 +53,7 @@ class ArcgisService {
     }
 
     static getYearDay(date){
-        var start = new Date(date.getFullYear(), 0, 0);
+        var start = new Date(Date.UTC(date.getFullYear(), 0, 0));
         var diff = date - start;
         var oneDay = 1000 * 60 * 60 * 24;
         var dayOfYear = Math.floor(diff / oneDay);
@@ -81,11 +81,11 @@ class ArcgisService {
 
         let begin = ArcgisService.rasterForDate(startDate, confirmed);
 
-        if (rasters.indexOf(begin) === -1){
+        if (begin !== undefined && rasters.indexOf(begin) === -1){
             rasters.push(begin);
         }
         let end = ArcgisService.rasterForDate(endDate, confirmed);
-        if (rasters.indexOf(end) === -1){
+        if (end !== undefined && rasters.indexOf(end) === -1){
             rasters.push(end);
         }
 
@@ -137,17 +137,17 @@ class ArcgisService {
 
         let indexes = [];
         if(begin.getFullYear() === rasterYear) {
-            indexes.push(ArcgisService.getYearDay(begin) -1);
+            indexes.push(ArcgisService.getYearDay(begin));
         } else {
-            var dateBegin = new Date(begin.getFullYear(), 0, 1, 0,0,0);
-            indexes.push(ArcgisService.getYearDay(dateBegin) -1);
+            var dateBegin = new Date(Date.UTC(begin.getFullYear(), 0, 1, 0,0,0));
+            indexes.push(ArcgisService.getYearDay(dateBegin));
         }
 
         if(end.getFullYear() === rasterYear) {
-            indexes.push(ArcgisService.getYearDay(end) -1);
+            indexes.push(ArcgisService.getYearDay(end));
         } else {
-            var dateEnd = new Date(end.getFullYear(), 11, 31, 0,0,0);
-            indexes.push(ArcgisService.getYearDay(dateEnd) -1);
+            var dateEnd = new Date(Date.UTC(end.getFullYear(), 11, 31, 0,0,0));
+            indexes.push(ArcgisService.getYearDay(dateEnd));
         }
         return indexes;
     }
@@ -184,8 +184,8 @@ class ArcgisService {
         begin = new Date(begin);
         end = new Date(end);
 
-        let beginMin = new Date(2015, 0, 1, 0, 0, 0);
-        let endMax = new Date(2016, 11, 31, 0, 0, 0);
+        let beginMin = new Date(Date.UTC(2015, 0, 1, 0, 0, 0));
+        let endMax = new Date(Date.UTC(2016, 11, 31, 0, 0, 0));
         if(begin < beginMin) {
             logger.debug('Setting minimun date to ', beginMin);
             begin = beginMin;
@@ -221,16 +221,16 @@ class ArcgisService {
         let year = (Object.keys(histograms).length -1) + START_YEAR;
         let latestHistogramKey = Math.max.apply(null, Object.keys(histograms));
         let dayNumber = histograms[latestHistogramKey].length;
-        let resultDate = new Date(new Date(year, 0, 1, 0,0,0).getTime() + ((dayNumber - 1) * 24 * 60 * 60* 1000));
+        let resultDate = new Date(new Date(Date.UTC(year, 0, 1, 0,0,0)).getTime() + ((dayNumber - 1) * 24 * 60 * 60* 1000));
         return resultDate;
     }
 
     static * getFullHistogram(){
         logger.info('Get full histogram');
-        var begin = new Date(START_YEAR, 0, 1, 0,0,0);
+        var begin = new Date(Date.UTC(START_YEAR, 0, 1, 0,0,0));
         var end = new Date();
 
-        let endMax = new Date(2016, 11, 31, 0, 0, 0);
+        let endMax = new Date(Date.UTC(2016, 11, 31, 0, 0, 0));
         if(end > endMax){
             logger.debug('Setting maximun date to ', endMax);
             end = endMax;
@@ -253,7 +253,9 @@ class ArcgisService {
 
             if(result.statusCode === 200) {
                 logger.debug('Response OK. body: ');
-                results[ArcgisService.yearForRaster(rasters[i])] = result.body.histograms[0].counts;
+                if(result.body.histograms[0].counts){
+                    results[ArcgisService.yearForRaster(rasters[i])] = result.body.histograms[0].counts.slice(1, result.body.histograms[0].counts.length);
+                }
             } else {
                 if(result.body.error.code === 400 || result.body.error.code === 500 || result.statusCode === 500){
                     throw new Error('The area you have selected is quite large and cannot be analyzed on-the-fly. Please select a smaller area and try again.', rasters[i]);

@@ -1,6 +1,6 @@
 {
   "name": "gfw-glad-alerts-api",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Global forest watch - Glad Alerts API",
   "main": "index.js",
   "scripts": {

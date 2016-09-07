@@ -20,7 +20,8 @@ var gladLatestSerializer = new JSONAPISerializer('imazon-latest', {
     },
     counts:{
         attributes: ['2014', '2015', '2016', '2017']
-    }
+    },
+    keyForAttribute: 'camelCase'
 });
 
 class GladAlertsSerializer {
