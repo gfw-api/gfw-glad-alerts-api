@@ -1,10 +1,11 @@
 prod:
-  image: vizzuality/gfw-glad-alerts-api:1.0.2${STAGING}
+  image: vizzuality/gfw-glad-alerts-api:1.0.2   ${STAGING}
   ports:
     - "3600"
   env_file:
     - prod.env
   command: start
+  dns: ${DNS_SERVER}
   log_driver: "gelf"
   restart: always
   log_opt:
