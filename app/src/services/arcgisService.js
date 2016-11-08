@@ -2,8 +2,8 @@
 var logger = require('logger');
 var config = require('config');
 var coRequest = require('co-request');
-var CartoDB = require('cartodb');
-var CartoDBService = require('services/cartoDBService');
+var GeoStoreService = require('services/geoStoreService');
+var geojsonToArcGIS = require('arcgis-to-geojson-utils').geojsonToArcGIS;
 const ArcgisError = require('errors/arcgisError');
 const querystring = require('querystring');
 
@@ -41,15 +41,7 @@ class ArcgisService {
     }
 
     static geojsonToEsriJson(geojson){
-        if(geojson.type === 'Polygon'){
-            geojson.rings = geojson.coordinates;
-            delete geojson.coordinates;
-        } else if(geojson.type === 'MultiPolygon') {
-            geojson.rings = geojson.coordinates[0];
-            delete geojson.coordinates;
-        }
-        geojson.type = 'polygon';
-        return geojson;
+        return geojsonToArcGIS(geojson);
     }
 
     static getYearDay(date){
@@ -323,7 +315,7 @@ class ArcgisService {
 
     static * getAlertCountByISO(begin, end, iso, confirmedOnly){
         logger.info('Get alerts by iso %s', iso);
-        let data = yield CartoDBService.getNational(iso);
+        let data = yield GeoStoreService.getNational(iso);
         if(data) {
             logger.debug('Obtained geojson. Obtaining alerts');
             let alerts = yield ArcgisService.getAlertCountByJSON(begin, end, iso, null, confirmedOnly);
@@ -333,13 +325,14 @@ class ArcgisService {
                 };
             }
             alerts.areaHa = data.areaHa;
+            alerts.downloadUrls = ArcgisService.getDownloadUrls(data.id, begin, end);
             return alerts;
         }
         return null;
     }
     static * getAlertCountByID1(begin, end, iso, id1, confirmedOnly){
         logger.info('Get alerts by iso %s and id1', iso, id1);
-        let data = yield CartoDBService.getSubnational(iso, id1);
+        let data = yield GeoStoreService.getSubnational(iso, id1);
         if(data) {
             logger.debug('Obtained geojson. Obtaining alerts');
             let alerts = yield ArcgisService.getAlertCountByJSON(begin, end, iso, id1, confirmedOnly);
@@ -349,42 +342,90 @@ class ArcgisService {
                 };
             }
             alerts.areaHa = data.areaHa;
+            alerts.downloadUrls = ArcgisService.getDownloadUrls(data.id, begin, end);
             return alerts;
         }
         return null;
     }
     static * getAlertCountByWDPA(begin, end, wdpaid, confirmedOnly){
         logger.info('Get alerts by wdpa %s', wdpaid);
-        let data = yield CartoDBService.getWdpa(wdpaid);
+        let data = yield GeoStoreService.getWdpa(wdpaid);
         if(data) {
             logger.debug('Obtained geojson. Obtaining alerts');
             let alerts = yield ArcgisService.getAlertCount(begin, end, data.geojson, confirmedOnly);
             alerts.areaHa = data.areaHa;
+            alerts.downloadUrls = ArcgisService.getDownloadUrls(data.id, begin, end);
             return alerts;
         }
         return null;
     }
     static * getAlertCountByUSE(begin, end, useTable, id, confirmedOnly){
         logger.info('Get alerts by use %s and id', useTable, id);
-        let data = yield CartoDBService.getUse(useTable, id);
+        let data = yield GeoStoreService.getUse(useTable, id);
         if(data) {
             logger.debug('Obtained geojson. Obtaining alerts');
             let alerts = yield ArcgisService.getAlertCount(begin, end, data.geojson, confirmedOnly);
             alerts.areaHa = data.areaHa;
+            alerts.downloadUrls = ArcgisService.getDownloadUrls(data.id, begin, end);
             return alerts;
         }
         return null;
     }
     static * getAlertCountByGeostore(begin, end, geostoreHash, confirmedOnly){
         logger.info('Get alerts by geostorehash %s', geostoreHash);
-        let data = yield CartoDBService.getGeostore(geostoreHash);
+        let data = yield GeoStoreService.getGeostore(geostoreHash);
         if(data) {
             logger.debug('Obtained geojson. Obtaining alerts');
             let alerts = yield ArcgisService.getAlertCount(begin, end, data.geojson.features[0].geometry, confirmedOnly);
             alerts.areaHa = data.areaHa;
+            alerts.downloadUrls = ArcgisService.getDownloadUrls(data.id, begin, end);
             return alerts;
         }
         return null;
+    }
+
+
+    static generateQueryDownload(dateYearBegin, yearBegin, dateYearEnd, yearEnd, table){
+        let query = `select lat, lon, confidence, year, julian_day from ${table} where`;
+        if(yearBegin === yearEnd){
+            query += ` year = ${yearBegin} and julian_day >= ${dateYearBegin} and julian_day <= ${dateYearEnd}`;
+        } else {
+            query += ' (';
+            logger.debug('Datebegin', dateYearBegin, 'end', dateYearEnd);
+            for (let i = yearBegin; i <= yearEnd; i++) {
+                if(i > yearBegin){
+                    query +=' or ';
+                }
+                if(i === yearBegin){
+                    query += `(year = '${i}' and julian_day >= ${dateYearBegin})`;
+                } else if(i === yearEnd) {
+                    query += `(year = '${i}' and julian_day <= ${dateYearEnd})`;
+                } else {
+                    query += `(year = '${i}')`;
+                }
+            }
+            query += ')';
+        }
+        logger.debug('Query result: ', query);
+        return query;
+    }
+
+    static getDownloadUrls(geostore, begin, end) {
+        try {
+            let formats = ['csv', 'json'];
+            let download = {};
+            let dateYearBegin = ArcgisService.getYearDay(begin);
+            let yearBegin = begin.getFullYear();
+            let dateYearEnd = ArcgisService.getYearDay(end);
+            let yearEnd = end.getFullYear();
+            let query = ArcgisService.generateQueryDownload(dateYearBegin, yearBegin, dateYearEnd, yearEnd, config.get('dataset.tableDownload'));
+            for (let i = 0, length = formats.length; i < length; i++) {
+                download[formats[i]] = config.get('dataset.urlDownload') + '?sql=' + query + '&geostore=' + geostore + '&format=' + formats[i];
+            }
+            return download;
+        } catch (err) {
+            logger.error(err);
+        }
     }
 }
 
