@@ -29,7 +29,6 @@
   "homepage": "https://github.com/gfw-api/gfw-glad-alerts-api#readme",
   "dependencies": {
     "bunyan": "1.7.1",
-    "cartodb": "0.4.0",
     "co": "4.6.0",
     "co-request": "1.0.0",
     "config": "1.19.0",
@@ -43,9 +42,9 @@
     "koa-router": "5.4.0",
     "koa-validate": "0.2.11",
     "lru-cache": "4.0.1",
-    "mustache": "2.2.1",
     "newrelic": "1.27.1",
-    "vizz.microservice-client": "1.4.0"
+    "vizz.microservice-client": "1.4.0",
+    "arcgis-to-geojson-utils": "1.0.1"
   },
   "devDependencies": {
     "co-mocha": "1.1.2",

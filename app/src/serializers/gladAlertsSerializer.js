@@ -8,7 +8,7 @@ var gladAlertsSerializer = new JSONAPISerializer('glad-alerts', {
         return attribute;
     },
     downloadUrls: {
-        attributes: ['csv', 'geojson', 'kml', 'shp', 'svg']
+        attributes: ['csv', 'json']
     },
     keyForAttribute: 'camelCase'
 });

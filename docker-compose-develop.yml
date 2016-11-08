@@ -6,7 +6,7 @@ develop:
   environment:
     NODE_ENV: dev
     CARTODB_USER: wri-01
-    API_GATEWAY_URL: http://192.168.99.100:8000
+    API_GATEWAY_URL: http://mymachine:8000
     DATASET_GLAD_ID: d529a24f-04bc-4e88-b5d6-b44747f8babe
   command: develop
   volumes:
