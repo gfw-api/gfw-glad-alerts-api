@@ -16,7 +16,7 @@
     },
     "dataset":{
         "idGlad": null,
-        "urlDownload": "http://ec2-54-160-63-241.compute-1.amazonaws.com/download/6f3902ca-ea9c-4327-893a-88548e190d8f",
-        "tableDownload": "index_6f3902caea9c4327893a88548e190d8f"
+        "urlDownload": "/download/b846230f-cec0-4208-92d1-3fc11ea7e32b",
+        "tableDownload": "index_b846230fcec0420892d13fc11ea7e32b"
     }
 }
