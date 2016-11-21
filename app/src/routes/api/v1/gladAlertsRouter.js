@@ -111,7 +111,7 @@ class GladAlertsRouter {
             if (!useTable) {
                 this.throw(404, 'Name not found');
             }
-            let data = yield ArcgisService.getAlertCountByUSE(dates.begin, dates.end, useTable, this.params.id, this.query.gladConfirmOnly);
+            let data = yield ArcgisService.getAlertCountByUSE(dates.begin, dates.end, this.params.name, this.params.id, this.query.gladConfirmOnly);
             if(!data){
                 this.throw(404, 'Use not found');
                 return;

@@ -352,7 +352,7 @@ class ArcgisService {
         let data = yield GeoStoreService.getWdpa(wdpaid);
         if(data) {
             logger.debug('Obtained geojson. Obtaining alerts');
-            let alerts = yield ArcgisService.getAlertCount(begin, end, data.geojson, confirmedOnly);
+            let alerts = yield ArcgisService.getAlertCount(begin, end, data.geojson.features[0].geometry, confirmedOnly);
             alerts.areaHa = data.areaHa;
             alerts.downloadUrls = ArcgisService.getDownloadUrls(data.id, begin, end);
             return alerts;
@@ -364,7 +364,7 @@ class ArcgisService {
         let data = yield GeoStoreService.getUse(useTable, id);
         if(data) {
             logger.debug('Obtained geojson. Obtaining alerts');
-            let alerts = yield ArcgisService.getAlertCount(begin, end, data.geojson, confirmedOnly);
+            let alerts = yield ArcgisService.getAlertCount(begin, end, data.geojson.features[0].geometry, confirmedOnly);
             alerts.areaHa = data.areaHa;
             alerts.downloadUrls = ArcgisService.getDownloadUrls(data.id, begin, end);
             return alerts;
