@@ -110,7 +110,7 @@ paths:
 
       responses:
         200:
-          description: Results obteined
+          description: Results obtained
           examples:
               data: 
                 type: glad-alerts
