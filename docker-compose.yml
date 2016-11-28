@@ -1,12 +1,13 @@
 prod:
-  image: vizzuality/gfw-glad-alerts-api:1.0.3${STAGING}
+  image: vizzuality/gfw-glad-alerts-api:1.0.4${STAGING}
   ports:
     - "3600"
   env_file:
     - prod.env
   command: start
   dns: ${DNS_SERVER}
-  # log_driver: "gelf"
   restart: always
-  # log_opt:
-    # gelf-address: ${GELF_ADDRESS}
+  log_driver: "syslog"
+  log_opt:
+    syslog-address: ${SYSLOG_ADDRESS}
+    tag: gfw-glad-alerts-api${STAGING}
