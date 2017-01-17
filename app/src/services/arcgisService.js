@@ -60,11 +60,11 @@ class ArcgisService {
         return ArcgisService.getYearDay(date) + (365 * (date.getFullYear() - START_YEAR));
     }
 
-    static rasterForDate(date, confirmed=false){
+    static rasterForDate(year, confirmed=false){
         if(confirmed){
-            return RASTERS.confirmedOnly[date.getFullYear()];
+            return RASTERS.confirmedOnly[year];
         } else {
-            return RASTERS.all[date.getFullYear()];
+            return RASTERS.all[year];
         }
     }
 
@@ -75,14 +75,11 @@ class ArcgisService {
     static rastersForPeriod(startDate, endDate, confirmed=false){
         let rasters = [];
 
-        let begin = ArcgisService.rasterForDate(startDate, confirmed);
-
-        if (begin !== undefined && rasters.indexOf(begin) === -1){
-            rasters.push(begin);
-        }
-        let end = ArcgisService.rasterForDate(endDate, confirmed);
-        if (end !== undefined && rasters.indexOf(end) === -1){
-            rasters.push(end);
+        for (let i = startDate.getFullYear(); i < endDate.getFullYear(); i++) {
+            let raster = ArcgisService.rasterForDate(i, confirmed);
+            if (raster !== undefined && rasters.indexOf(raster) === -1){
+                rasters.push(raster);
+            }
         }
 
         return rasters;
