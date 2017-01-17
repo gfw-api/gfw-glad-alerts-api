@@ -7,8 +7,8 @@ var geojsonToArcGIS = require('arcgis-to-geojson-utils').geojsonToArcGIS;
 const ArcgisError = require('errors/arcgisError');
 const querystring = require('querystring');
 
-const IMAGE_SERVER = 'http://gis-gfw.wri.org/arcgis/rest/services/image_services/glad_alerts_analysis_staging/ImageServer';
-const CONFIRMED_IMAGE_SERVER = 'http://gis-gfw.wri.org/arcgis/rest/services/image_services/glad_alerts_con_analysis_staging/ImageServer';
+const IMAGE_SERVER = 'http://gis-gfw.wri.org/arcgis/rest/services/image_services/glad_alerts_analysis_staging/ImageServer/';
+const CONFIRMED_IMAGE_SERVER = 'http://gis-gfw.wri.org/arcgis/rest/services/image_services/glad_alerts_con_analysis_staging/ImageServer/';
 const START_YEAR = 2015;
 const MOSAIC_RULE = {
     'mosaicMethod': 'esriMosaicLockRaster',
