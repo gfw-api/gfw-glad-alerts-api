@@ -10,6 +10,7 @@ const querystring = require('querystring');
 const IMAGE_SERVER = 'http://gis-gfw.wri.org/arcgis/rest/services/image_services/glad_alerts_analysis_staging/ImageServer/';
 const CONFIRMED_IMAGE_SERVER = 'http://gis-gfw.wri.org/arcgis/rest/services/image_services/glad_alerts_con_analysis_staging/ImageServer/';
 const START_YEAR = 2015;
+const END_YEAR = 2017;
 const MOSAIC_RULE = {
     'mosaicMethod': 'esriMosaicLockRaster',
     'ascending': true,
@@ -179,8 +180,8 @@ class ArcgisService {
         begin = new Date(begin);
         end = new Date(end);
 
-        let beginMin = new Date(Date.UTC(2015, 0, 1, 0, 0, 0));
-        let endMax = new Date(Date.UTC(2016, 11, 31, 0, 0, 0));
+        let beginMin = new Date(Date.UTC(START_YEAR, 0, 1, 0, 0, 0));
+        let endMax = new Date(Date.UTC(END_YEAR, 11, 31, 0, 0, 0));
         if(begin < beginMin) {
             logger.debug('Setting minimun date to ', beginMin);
             begin = beginMin;
@@ -225,7 +226,7 @@ class ArcgisService {
         var begin = new Date(Date.UTC(START_YEAR, 0, 1, 0,0,0));
         var end = new Date();
 
-        let endMax = new Date(Date.UTC(2016, 11, 31, 0, 0, 0));
+        let endMax = new Date(Date.UTC(END_YEAR, 11, 31, 0, 0, 0));
         if(end > endMax){
             logger.debug('Setting maximun date to ', endMax);
             end = endMax;
@@ -306,7 +307,7 @@ class ArcgisService {
             method: 'GET',
             json: true
         });
-        
+
         if (result.statusCode !== 200) {
             logger.error('Error doing query:', result.body);
             // console.error(result);
