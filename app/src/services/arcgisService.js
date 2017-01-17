@@ -75,7 +75,7 @@ class ArcgisService {
     static rastersForPeriod(startDate, endDate, confirmed=false){
         let rasters = [];
 
-        for (let i = startDate.getFullYear(); i < endDate.getFullYear(); i++) {
+        for (let i = startDate.getFullYear(); i <= endDate.getFullYear(); i++) {
             let raster = ArcgisService.rasterForDate(i, confirmed);
             if (raster !== undefined && rasters.indexOf(raster) === -1){
                 rasters.push(raster);
