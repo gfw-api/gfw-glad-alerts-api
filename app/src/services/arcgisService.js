@@ -7,8 +7,8 @@ var geojsonToArcGIS = require('arcgis-to-geojson-utils').geojsonToArcGIS;
 const ArcgisError = require('errors/arcgisError');
 const querystring = require('querystring');
 
-const IMAGE_SERVER = 'http://gis-gfw.wri.org/arcgis/rest/services/image_services/glad_alerts_analysis_staging/ImageServer/';
-const CONFIRMED_IMAGE_SERVER = 'http://gis-gfw.wri.org/arcgis/rest/services/image_services/glad_alerts_con_analysis_staging/ImageServer/';
+const IMAGE_SERVER = 'http://gis-gfw.wri.org/arcgis/rest/services/image_services/glad_alerts_analysis/ImageServer/';
+const CONFIRMED_IMAGE_SERVER = 'http://gis-gfw.wri.org/arcgis/rest/services/image_services/glad_alerts_con_analysis/ImageServer/';
 const START_YEAR = 2015;
 const MOSAIC_RULE = {
     'mosaicMethod': 'esriMosaicLockRaster',
@@ -19,11 +19,13 @@ const MOSAIC_RULE = {
 const RASTERS = {
     all: {
         2015: 6,
-        2016: 4
+        2016: 4,
+        2017: 9
     },
     confirmedOnly: {
         2015: 7,
-        2016: 5
+        2016: 5,
+        2017: 9
     }
 };
 
@@ -31,7 +33,8 @@ const YEAR_FOR_RASTERS = {
     6: 2015,
     7: 2015,
     4: 2016,
-    5: 2016
+    5: 2016,
+    9: 2017
 };
 
 class ArcgisService {
@@ -303,7 +306,7 @@ class ArcgisService {
             method: 'GET',
             json: true
         });
-
+        logger.info('result', result);
         if (result.statusCode !== 200) {
             logger.error('Error doing query:', result.body);
             // console.error(result);
@@ -352,7 +355,7 @@ class ArcgisService {
         let data = yield GeoStoreService.getWdpa(wdpaid);
         if(data) {
             logger.debug('Obtained geojson. Obtaining alerts');
-            let alerts = yield ArcgisService.getAlertCount(begin, end, data.geojson.features[0].geometry, confirmedOnly);
+            let alerts = yield ArcgisService.getAlertCount(begin, end, data.geojson, confirmedOnly);
             alerts.areaHa = data.areaHa;
             alerts.downloadUrls = ArcgisService.getDownloadUrls(data.id, begin, end);
             return alerts;
@@ -364,7 +367,7 @@ class ArcgisService {
         let data = yield GeoStoreService.getUse(useTable, id);
         if(data) {
             logger.debug('Obtained geojson. Obtaining alerts');
-            let alerts = yield ArcgisService.getAlertCount(begin, end, data.geojson.features[0].geometry, confirmedOnly);
+            let alerts = yield ArcgisService.getAlertCount(begin, end, data.geojson, confirmedOnly);
             alerts.areaHa = data.areaHa;
             alerts.downloadUrls = ArcgisService.getDownloadUrls(data.id, begin, end);
             return alerts;
