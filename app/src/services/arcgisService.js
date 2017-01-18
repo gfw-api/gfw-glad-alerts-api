@@ -7,9 +7,10 @@ var geojsonToArcGIS = require('arcgis-to-geojson-utils').geojsonToArcGIS;
 const ArcgisError = require('errors/arcgisError');
 const querystring = require('querystring');
 
-const IMAGE_SERVER = 'http://gis-gfw.wri.org/arcgis/rest/services/image_services/glad_alerts_analysis/ImageServer/';
-const CONFIRMED_IMAGE_SERVER = 'http://gis-gfw.wri.org/arcgis/rest/services/image_services/glad_alerts_con_analysis/ImageServer/';
+const IMAGE_SERVER = config.get('arcgis.imageServer');
+const CONFIRMED_IMAGE_SERVER = config.get('arcgis.imageServerConfirmed');
 const START_YEAR = 2015;
+const END_YEAR = 2017;
 const MOSAIC_RULE = {
     'mosaicMethod': 'esriMosaicLockRaster',
     'ascending': true,
@@ -19,11 +20,13 @@ const MOSAIC_RULE = {
 const RASTERS = {
     all: {
         2015: 6,
-        2016: 4
+        2016: 4,
+        2017: 9
     },
     confirmedOnly: {
         2015: 7,
-        2016: 5
+        2016: 5,
+        2017: 9
     }
 };
 
@@ -31,7 +34,8 @@ const YEAR_FOR_RASTERS = {
     6: 2015,
     7: 2015,
     4: 2016,
-    5: 2016
+    5: 2016,
+    9: 2017
 };
 
 class ArcgisService {
@@ -56,11 +60,11 @@ class ArcgisService {
         return ArcgisService.getYearDay(date) + (365 * (date.getFullYear() - START_YEAR));
     }
 
-    static rasterForDate(date, confirmed=false){
+    static rasterForDate(year, confirmed=false){
         if(confirmed){
-            return RASTERS.confirmedOnly[date.getFullYear()];
+            return RASTERS.confirmedOnly[year];
         } else {
-            return RASTERS.all[date.getFullYear()];
+            return RASTERS.all[year];
         }
     }
 
@@ -71,14 +75,11 @@ class ArcgisService {
     static rastersForPeriod(startDate, endDate, confirmed=false){
         let rasters = [];
 
-        let begin = ArcgisService.rasterForDate(startDate, confirmed);
-
-        if (begin !== undefined && rasters.indexOf(begin) === -1){
-            rasters.push(begin);
-        }
-        let end = ArcgisService.rasterForDate(endDate, confirmed);
-        if (end !== undefined && rasters.indexOf(end) === -1){
-            rasters.push(end);
+        for (let i = startDate.getFullYear(); i <= endDate.getFullYear(); i++) {
+            let raster = ArcgisService.rasterForDate(i, confirmed);
+            if (raster !== undefined && rasters.indexOf(raster) === -1){
+                rasters.push(raster);
+            }
         }
 
         return rasters;
@@ -176,8 +177,8 @@ class ArcgisService {
         begin = new Date(begin);
         end = new Date(end);
 
-        let beginMin = new Date(Date.UTC(2015, 0, 1, 0, 0, 0));
-        let endMax = new Date(Date.UTC(2016, 11, 31, 0, 0, 0));
+        let beginMin = new Date(Date.UTC(START_YEAR, 0, 1, 0, 0, 0));
+        let endMax = new Date(Date.UTC(END_YEAR, 11, 31, 0, 0, 0));
         if(begin < beginMin) {
             logger.debug('Setting minimun date to ', beginMin);
             begin = beginMin;
@@ -222,7 +223,7 @@ class ArcgisService {
         var begin = new Date(Date.UTC(START_YEAR, 0, 1, 0,0,0));
         var end = new Date();
 
-        let endMax = new Date(Date.UTC(2016, 11, 31, 0, 0, 0));
+        let endMax = new Date(Date.UTC(END_YEAR, 11, 31, 0, 0, 0));
         if(end > endMax){
             logger.debug('Setting maximun date to ', endMax);
             end = endMax;
@@ -352,7 +353,7 @@ class ArcgisService {
         let data = yield GeoStoreService.getWdpa(wdpaid);
         if(data) {
             logger.debug('Obtained geojson. Obtaining alerts');
-            let alerts = yield ArcgisService.getAlertCount(begin, end, data.geojson.features[0].geometry, confirmedOnly);
+            let alerts = yield ArcgisService.getAlertCount(begin, end, data.geojson, confirmedOnly);
             alerts.areaHa = data.areaHa;
             alerts.downloadUrls = ArcgisService.getDownloadUrls(data.id, begin, end);
             return alerts;
@@ -364,7 +365,7 @@ class ArcgisService {
         let data = yield GeoStoreService.getUse(useTable, id);
         if(data) {
             logger.debug('Obtained geojson. Obtaining alerts');
-            let alerts = yield ArcgisService.getAlertCount(begin, end, data.geojson.features[0].geometry, confirmedOnly);
+            let alerts = yield ArcgisService.getAlertCount(begin, end, data.geojson, confirmedOnly);
             alerts.areaHa = data.areaHa;
             alerts.downloadUrls = ArcgisService.getDownloadUrls(data.id, begin, end);
             return alerts;
