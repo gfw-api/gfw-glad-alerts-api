@@ -35,7 +35,8 @@ const YEAR_FOR_RASTERS = {
     7: 2015,
     4: 2016,
     5: 2016,
-    9: 2017
+    9: 2017,
+    8: 2017
 };
 
 class ArcgisService {
