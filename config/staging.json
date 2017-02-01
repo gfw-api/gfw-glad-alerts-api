@@ -1,7 +1,7 @@
 {
     "logger": {
         "name": "gfw-glad-alerts-api-STAGING",
-        "level": "debug",
+        "level": "info",
         "toFile": false,
         "dirLogFile": null
     },

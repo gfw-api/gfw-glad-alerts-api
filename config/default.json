@@ -15,6 +15,12 @@
         "apiUrl": "https://wri-01.cartodb.com/api/v2/sql"
     },
     "dataset":{
-        "idGlad": null
+        "idGlad": null,
+        "urlDownload": "/download/274b4818-be18-4890-9d10-eae56d2a82e5",
+        "tableDownload": "index_b846230fcec0420892d13fc11ea7e32b"
+    },
+    "arcgis":{
+        "imageServer": null,
+        "imageServerConfirmed": null
     }
 }

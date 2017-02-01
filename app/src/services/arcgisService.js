@@ -2,14 +2,15 @@
 var logger = require('logger');
 var config = require('config');
 var coRequest = require('co-request');
-var CartoDB = require('cartodb');
-var CartoDBService = require('services/cartoDBService');
+var GeoStoreService = require('services/geoStoreService');
+var geojsonToArcGIS = require('arcgis-to-geojson-utils').geojsonToArcGIS;
 const ArcgisError = require('errors/arcgisError');
 const querystring = require('querystring');
 
-const IMAGE_SERVER = 'http://gis-gfw.wri.org/arcgis/rest/services/image_services/glad_alerts_analysis/ImageServer/';
-const CONFIRMED_IMAGE_SERVER = 'http://gis-gfw.wri.org/arcgis/rest/services/image_services/glad_alerts_con_analysis/ImageServer/';
+const IMAGE_SERVER = config.get('arcgis.imageServer');
+const CONFIRMED_IMAGE_SERVER = config.get('arcgis.imageServerConfirmed');
 const START_YEAR = 2015;
+const END_YEAR = 2017;
 const MOSAIC_RULE = {
     'mosaicMethod': 'esriMosaicLockRaster',
     'ascending': true,
@@ -19,11 +20,13 @@ const MOSAIC_RULE = {
 const RASTERS = {
     all: {
         2015: 6,
-        2016: 4
+        2016: 4,
+        2017: 9
     },
     confirmedOnly: {
         2015: 7,
-        2016: 5
+        2016: 5,
+        2017: 9
     }
 };
 
@@ -31,7 +34,8 @@ const YEAR_FOR_RASTERS = {
     6: 2015,
     7: 2015,
     4: 2016,
-    5: 2016
+    5: 2016,
+    9: 2017
 };
 
 class ArcgisService {
@@ -41,15 +45,7 @@ class ArcgisService {
     }
 
     static geojsonToEsriJson(geojson){
-        if(geojson.type === 'Polygon'){
-            geojson.rings = geojson.coordinates;
-            delete geojson.coordinates;
-        } else if(geojson.type === 'MultiPolygon') {
-            geojson.rings = geojson.coordinates[0];
-            delete geojson.coordinates;
-        }
-        geojson.type = 'polygon';
-        return geojson;
+        return geojsonToArcGIS(geojson);
     }
 
     static getYearDay(date){
@@ -64,11 +60,11 @@ class ArcgisService {
         return ArcgisService.getYearDay(date) + (365 * (date.getFullYear() - START_YEAR));
     }
 
-    static rasterForDate(date, confirmed=false){
+    static rasterForDate(year, confirmed=false){
         if(confirmed){
-            return RASTERS.confirmedOnly[date.getFullYear()];
+            return RASTERS.confirmedOnly[year];
         } else {
-            return RASTERS.all[date.getFullYear()];
+            return RASTERS.all[year];
         }
     }
 
@@ -79,14 +75,11 @@ class ArcgisService {
     static rastersForPeriod(startDate, endDate, confirmed=false){
         let rasters = [];
 
-        let begin = ArcgisService.rasterForDate(startDate, confirmed);
-
-        if (begin !== undefined && rasters.indexOf(begin) === -1){
-            rasters.push(begin);
-        }
-        let end = ArcgisService.rasterForDate(endDate, confirmed);
-        if (end !== undefined && rasters.indexOf(end) === -1){
-            rasters.push(end);
+        for (let i = startDate.getFullYear(); i <= endDate.getFullYear(); i++) {
+            let raster = ArcgisService.rasterForDate(i, confirmed);
+            if (raster !== undefined && rasters.indexOf(raster) === -1){
+                rasters.push(raster);
+            }
         }
 
         return rasters;
@@ -184,8 +177,8 @@ class ArcgisService {
         begin = new Date(begin);
         end = new Date(end);
 
-        let beginMin = new Date(Date.UTC(2015, 0, 1, 0, 0, 0));
-        let endMax = new Date(Date.UTC(2016, 11, 31, 0, 0, 0));
+        let beginMin = new Date(Date.UTC(START_YEAR, 0, 1, 0, 0, 0));
+        let endMax = new Date(Date.UTC(END_YEAR, 11, 31, 0, 0, 0));
         if(begin < beginMin) {
             logger.debug('Setting minimun date to ', beginMin);
             begin = beginMin;
@@ -230,7 +223,7 @@ class ArcgisService {
         var begin = new Date(Date.UTC(START_YEAR, 0, 1, 0,0,0));
         var end = new Date();
 
-        let endMax = new Date(Date.UTC(2016, 11, 31, 0, 0, 0));
+        let endMax = new Date(Date.UTC(END_YEAR, 11, 31, 0, 0, 0));
         if(end > endMax){
             logger.debug('Setting maximun date to ', endMax);
             end = endMax;
@@ -258,9 +251,9 @@ class ArcgisService {
                 }
             } else {
                 if(result.body.error.code === 400 || result.body.error.code === 500 || result.statusCode === 500){
-                    throw new Error('The area you have selected is quite large and cannot be analyzed on-the-fly. Please select a smaller area and try again.', rasters[i]);
+                    throw new ArcgisError('The area you have selected is quite large and cannot be analyzed on-the-fly. Please select a smaller area and try again.', rasters[i]);
                 } else {
-                    throw new Error('Error obtaining data in Arcgis');
+                    throw new ArcgisError('Error obtaining data in Arcgis');
                 }
             }
         }
@@ -273,7 +266,7 @@ class ArcgisService {
     }
 
     static generateQuery(iso, id1, dateYearBegin, yearBegin, dateYearEnd, yearEnd, confirmed){
-        let query = `select sum(count) as value from table where country_id='${iso}' ${id1 ? ` and state_id = '${id1}' `: ''} ${confirmed ? ' and confidence like \'confirmed\' ' : ''}`;
+        let query = `select sum(alerts) as value from table where country_iso='${iso}' ${id1 ? ` and state_id = '${id1}' `: ''} ${confirmed ? ' and confidence like \'confirmed\' ' : ''}`;
         if(yearBegin === yearEnd){
             query += ` and year like '${yearBegin}' and day::int >= ${dateYearBegin} and day::int <= ${dateYearEnd}`;
         } else {
@@ -315,7 +308,7 @@ class ArcgisService {
         if (result.statusCode !== 200) {
             logger.error('Error doing query:', result.body);
             // console.error(result);
-            throw new Error('Error doing query');
+            throw new ArcgisError('Error doing query');
         } else {
             return result.body.data[0];
         }
@@ -323,7 +316,7 @@ class ArcgisService {
 
     static * getAlertCountByISO(begin, end, iso, confirmedOnly){
         logger.info('Get alerts by iso %s', iso);
-        let data = yield CartoDBService.getNational(iso);
+        let data = yield GeoStoreService.getNational(iso);
         if(data) {
             logger.debug('Obtained geojson. Obtaining alerts');
             let alerts = yield ArcgisService.getAlertCountByJSON(begin, end, iso, null, confirmedOnly);
@@ -333,13 +326,14 @@ class ArcgisService {
                 };
             }
             alerts.areaHa = data.areaHa;
+            alerts.downloadUrls = ArcgisService.getDownloadUrls(data.id, begin, end);
             return alerts;
         }
         return null;
     }
     static * getAlertCountByID1(begin, end, iso, id1, confirmedOnly){
         logger.info('Get alerts by iso %s and id1', iso, id1);
-        let data = yield CartoDBService.getSubnational(iso, id1);
+        let data = yield GeoStoreService.getSubnational(iso, id1);
         if(data) {
             logger.debug('Obtained geojson. Obtaining alerts');
             let alerts = yield ArcgisService.getAlertCountByJSON(begin, end, iso, id1, confirmedOnly);
@@ -349,42 +343,90 @@ class ArcgisService {
                 };
             }
             alerts.areaHa = data.areaHa;
+            alerts.downloadUrls = ArcgisService.getDownloadUrls(data.id, begin, end);
             return alerts;
         }
         return null;
     }
     static * getAlertCountByWDPA(begin, end, wdpaid, confirmedOnly){
         logger.info('Get alerts by wdpa %s', wdpaid);
-        let data = yield CartoDBService.getWdpa(wdpaid);
+        let data = yield GeoStoreService.getWdpa(wdpaid);
         if(data) {
             logger.debug('Obtained geojson. Obtaining alerts');
             let alerts = yield ArcgisService.getAlertCount(begin, end, data.geojson, confirmedOnly);
             alerts.areaHa = data.areaHa;
+            alerts.downloadUrls = ArcgisService.getDownloadUrls(data.id, begin, end);
             return alerts;
         }
         return null;
     }
     static * getAlertCountByUSE(begin, end, useTable, id, confirmedOnly){
         logger.info('Get alerts by use %s and id', useTable, id);
-        let data = yield CartoDBService.getUse(useTable, id);
+        let data = yield GeoStoreService.getUse(useTable, id);
         if(data) {
             logger.debug('Obtained geojson. Obtaining alerts');
             let alerts = yield ArcgisService.getAlertCount(begin, end, data.geojson, confirmedOnly);
             alerts.areaHa = data.areaHa;
+            alerts.downloadUrls = ArcgisService.getDownloadUrls(data.id, begin, end);
             return alerts;
         }
         return null;
     }
     static * getAlertCountByGeostore(begin, end, geostoreHash, confirmedOnly){
         logger.info('Get alerts by geostorehash %s', geostoreHash);
-        let data = yield CartoDBService.getGeostore(geostoreHash);
+        let data = yield GeoStoreService.getGeostore(geostoreHash);
         if(data) {
             logger.debug('Obtained geojson. Obtaining alerts');
             let alerts = yield ArcgisService.getAlertCount(begin, end, data.geojson.features[0].geometry, confirmedOnly);
             alerts.areaHa = data.areaHa;
+            alerts.downloadUrls = ArcgisService.getDownloadUrls(data.id, begin, end);
             return alerts;
         }
         return null;
+    }
+
+
+    static generateQueryDownload(dateYearBegin, yearBegin, dateYearEnd, yearEnd, table){
+        let query = `select lat, lon, confidence, year, julian_day from ${table} where`;
+        if(yearBegin === yearEnd){
+            query += ` year = ${yearBegin} and julian_day >= ${dateYearBegin} and julian_day <= ${dateYearEnd}`;
+        } else {
+            query += ' (';
+            logger.debug('Datebegin', dateYearBegin, 'end', dateYearEnd);
+            for (let i = yearBegin; i <= yearEnd; i++) {
+                if(i > yearBegin){
+                    query +=' or ';
+                }
+                if(i === yearBegin){
+                    query += `(year = '${i}' and julian_day >= ${dateYearBegin})`;
+                } else if(i === yearEnd) {
+                    query += `(year = '${i}' and julian_day <= ${dateYearEnd})`;
+                } else {
+                    query += `(year = '${i}')`;
+                }
+            }
+            query += ')';
+        }
+        logger.debug('Query result: ', query);
+        return query;
+    }
+
+    static getDownloadUrls(geostore, begin, end) {
+        try {
+            let formats = ['csv', 'json'];
+            let download = {};
+            let dateYearBegin = ArcgisService.getYearDay(begin);
+            let yearBegin = begin.getFullYear();
+            let dateYearEnd = ArcgisService.getYearDay(end);
+            let yearEnd = end.getFullYear();
+            let query = ArcgisService.generateQueryDownload(dateYearBegin, yearBegin, dateYearEnd, yearEnd, config.get('dataset.tableDownload'));
+            for (let i = 0, length = formats.length; i < length; i++) {
+                download[formats[i]] = config.get('dataset.urlDownload') + '?sql=' + query + '&geostore=' + geostore + '&format=' + formats[i];
+            }
+            return download;
+        } catch (err) {
+            logger.error(err);
+        }
     }
 }
 

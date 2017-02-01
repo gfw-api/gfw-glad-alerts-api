@@ -4,5 +4,9 @@
     },
     "dataset":{
         "idGlad": "DATASET_GLAD_ID"
+    },
+    "arcgis": {
+        "imageServer": "IMAGE_SERVER_URL",
+        "imageServerConfirmed": "IMAGE_SERVER_URL_CONFIRMED"
     }
 }
