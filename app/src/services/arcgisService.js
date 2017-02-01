@@ -88,7 +88,7 @@ class ArcgisService {
 
     static * getHistogram(rasters, esriJSON, confirmedOnly) {
         let formFields = {
-            geometry: JSON.stringify(esriJSON),
+            geometry: esriJSON[0] ? JSON.stringify(esriJSON[0].geometry) : JSON.stringify(esriJSON),
             geometryType: 'esriGeometryPolygon',
             f: 'pjson'
         };
@@ -114,7 +114,7 @@ class ArcgisService {
                 logger.debug('Response OK. body: ');
                 results[rasters[i]] = result.body;
             } else {
-                logger.error('Error to obtain data in arcgis');
+                logger.error('Error to obtain data in arcgis', result.body);
                 if(result.body.error.code === 400 || result.body.error.code === 500 || result.statusCode === 500){
                     throw new ArcgisError('The area you have selected is quite large and cannot be analyzed on-the-fly. Please select a smaller area and try again.', rasters[i]);
                 } else {
