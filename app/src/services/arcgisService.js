@@ -24,9 +24,9 @@ const RASTERS = {
         2017: 9
     },
     confirmedOnly: {
-        2015: 7,
-        2016: 5,
-        2017: 9
+        2015: 5,
+        2016: 7,
+        2017: 8
     }
 };
 
@@ -35,7 +35,8 @@ const YEAR_FOR_RASTERS = {
     7: 2015,
     4: 2016,
     5: 2016,
-    9: 2017
+    9: 2017,
+    8: 2017
 };
 
 class ArcgisService {
@@ -87,7 +88,7 @@ class ArcgisService {
 
     static * getHistogram(rasters, esriJSON, confirmedOnly) {
         let formFields = {
-            geometry: JSON.stringify(esriJSON),
+            geometry: esriJSON[0] ? JSON.stringify(esriJSON[0].geometry) : JSON.stringify(esriJSON),
             geometryType: 'esriGeometryPolygon',
             f: 'pjson'
         };
@@ -113,7 +114,7 @@ class ArcgisService {
                 logger.debug('Response OK. body: ');
                 results[rasters[i]] = result.body;
             } else {
-                logger.error('Error to obtain data in arcgis');
+                logger.error('Error to obtain data in arcgis', result.body);
                 if(result.body.error.code === 400 || result.body.error.code === 500 || result.statusCode === 500){
                     throw new ArcgisError('The area you have selected is quite large and cannot be analyzed on-the-fly. Please select a smaller area and try again.', rasters[i]);
                 } else {

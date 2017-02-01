@@ -6,8 +6,10 @@ develop:
   environment:
     NODE_ENV: dev
     CARTODB_USER: wri-01
-    API_GATEWAY_URL: http://mymachine:8000
+    API_GATEWAY_URL: http://mymachine:9000
     DATASET_GLAD_ID: 27be6f44-2c8c-4fdc-8272-66845f016d87
+    IMAGE_SERVER_URL: <complete>
+    IMAGE_SERVER_URL_CONFIRMED: <complete>
   command: develop
   volumes:
     - ./app:/opt/gfw-glad-alerts-api/app
