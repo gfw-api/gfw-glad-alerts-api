@@ -3,7 +3,9 @@
         "user": "CARTODB_USER"
     },
     "dataset":{
-        "idGlad": "DATASET_GLAD_ID"
+        "idGlad": "DATASET_GLAD_ID",
+        "urlDownload": "DATASET_URL_DOWNLOAD",
+        "tableDownload": "DATASET_TABLE_DOWNLOAD"
     },
     "arcgis": {
         "imageServer": "IMAGE_SERVER_URL",
