@@ -388,7 +388,7 @@ class ArcgisService {
 
 
     static generateQueryDownload(dateYearBegin, yearBegin, dateYearEnd, yearEnd, table){
-        let query = `select lat, lon, confidence, year, julian_day from ${table} where`;
+        let query = `select lat, long, confidence, year, julian_day from ${table} where`;
         if(yearBegin === yearEnd){
             query += ` year = ${yearBegin} and julian_day >= ${dateYearBegin} and julian_day <= ${dateYearEnd}`;
         } else {
