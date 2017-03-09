@@ -269,7 +269,7 @@ class ArcgisService {
     static generateQuery(iso, id1, dateYearBegin, yearBegin, dateYearEnd, yearEnd, confirmed){
         let query = `select sum(alerts) as value from table where country_iso='${iso}' ${id1 ? ` and state_id = '${id1}' `: ''} ${confirmed ? ' and confidence like \'confirmed\' ' : ''}`;
         if(yearBegin === yearEnd){
-            query += ` and year like '${yearBegin}' and day::int >= ${dateYearBegin} and day::int <= ${dateYearEnd}`;
+            query += ` and year = ${yearBegin} and day >= ${dateYearBegin} and day <= ${dateYearEnd}`;
         } else {
             query += ' and (';
             logger.debug('Datebegin', dateYearBegin, 'end', dateYearEnd);
@@ -278,11 +278,11 @@ class ArcgisService {
                     query +=' or ';
                 }
                 if(i === yearBegin){
-                    query += `(year like '${i}' and day::int >= ${dateYearBegin})`;
+                    query += `(year = ${i} and day >= ${dateYearBegin})`;
                 } else if(i === yearEnd) {
-                    query += `(year like '${i}' and day::int <= ${dateYearEnd})`;
+                    query += `(year = ${i} and day <= ${dateYearEnd})`;
                 } else {
-                    query += `(year like '${i}')`;
+                    query += `(year = ${i})`;
                 }
             }
             query += ')';
