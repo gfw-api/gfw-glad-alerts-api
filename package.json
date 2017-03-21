@@ -1,6 +1,6 @@
 {
   "name": "gfw-glad-alerts-api",
-  "version": "1.0.4",
+  "version": "1.1.0",
   "description": "Global forest watch - Glad Alerts API",
   "main": "index.js",
   "scripts": {
@@ -43,7 +43,7 @@
     "koa-validate": "0.2.11",
     "lru-cache": "4.0.1",
     "newrelic": "1.27.1",
-    "vizz.microservice-client": "1.4.0",
+    "vizz.microservice-client": "1.5.4",
     "arcgis-to-geojson-utils": "1.0.1"
   },
   "devDependencies": {

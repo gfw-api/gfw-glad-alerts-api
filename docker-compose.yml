@@ -1,5 +1,5 @@
 prod:
-  image: vizzuality/gfw-glad-alerts-api:1.0.4${STAGING}
+  image: vizzuality/gfw-glad-alerts-api:1.1.0${STAGING}
   ports:
     - "3600"
   env_file:
