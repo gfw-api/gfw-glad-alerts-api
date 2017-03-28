@@ -177,7 +177,7 @@ class ArcgisService {
         logger.info('Get alerts count with begin ', begin, ' , end', end, 'and confirmedOnly ', confirmedOnly);
               
 
-        let uri = `/gladanalysis?geostore=${geostore}&period=${begin},${end}`;
+        let uri = `/gladanalysis?geostore=${geostore}&period=${begin.toISOString().substring(0, 10)},${end.toISOString().substring(0, 10)}`;
         if (confirmedOnly) {
             uri += '&confidence=3';
         }
