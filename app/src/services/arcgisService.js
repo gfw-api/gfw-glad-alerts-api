@@ -173,41 +173,58 @@ class ArcgisService {
         return totalCount;
     }
 
-    static * getAlertCount(begin, end, geojson, confirmedOnly){
+    static * getAlertCount(begin, end, geostore, confirmedOnly){
         logger.info('Get alerts count with begin ', begin, ' , end', end, 'and confirmedOnly ', confirmedOnly);
-        begin = new Date(begin);
-        end = new Date(end);
+              
 
-        let beginMin = new Date(Date.UTC(START_YEAR, 0, 1, 0, 0, 0));
-        let endMax = new Date(Date.UTC(END_YEAR, 11, 31, 0, 0, 0));
-        if(begin < beginMin) {
-            logger.debug('Setting minimun date to ', beginMin);
-            begin = beginMin;
-        }
-        if(end > endMax){
-            logger.debug('Setting maximun date to ', endMax);
-            end = endMax;
-        }
+        // let beginMin = new Date(Date.UTC(START_YEAR, 0, 1, 0, 0, 0));
+        // let endMax = new Date(Date.UTC(END_YEAR, 11, 31, 0, 0, 0));
+        // if(begin < beginMin) {
+        //     logger.debug('Setting minimun date to ', beginMin);
+        //     begin = beginMin;
+        // }
+        // if(end > endMax){
+        //     logger.debug('Setting maximun date to ', endMax);
+        //     end = endMax;
+        // }
 
 
-        let rasters = ArcgisService.rastersForPeriod(begin, end, confirmedOnly);
-        logger.debug('rasters', rasters);
-        try{
-            let esriJSON = ArcgisService.geojsonToEsriJson(geojson);
-            let histograms = yield ArcgisService.getHistogram(rasters, esriJSON, confirmedOnly);
-            logger.debug('histograms', histograms);
-            let alertCount = ArcgisService.alertCount(begin, end, histograms);
-            logger.debug('AlertCount', alertCount);
-            return {
-                begin: begin.toISOString(),
-                end: end.toISOString(),
-                value: alertCount,
-                notes: '' // TODO: Add notess
-            };
-        } catch(err){
-            logger.error(err);
-            throw err;
+        // let rasters = ArcgisService.rastersForPeriod(begin, end, confirmedOnly);
+        // logger.debug('rasters', rasters);
+        // try{
+        //     let esriJSON = ArcgisService.geojsonToEsriJson(geojson);
+        //     let histograms = yield ArcgisService.getHistogram(rasters, esriJSON, confirmedOnly);
+        //     logger.debug('histograms', histograms);
+        //     let alertCount = ArcgisService.alertCount(begin, end, histograms);
+        //     logger.debug('AlertCount', alertCount);
+        //     return {
+        //         begin: begin.toISOString(),
+        //         end: end.toISOString(),
+        //         value: alertCount,
+        //         notes: '' // TODO: Add notess
+        //     };
+        // } catch(err){
+        //     logger.error(err);
+        //     throw err;
+        // }
+        let uri = `/gladanalysis?geostore=${geostore}&period=${begin},${end}`;
+        if (confirmedOnly) {
+            uri += '&confidence=3';
         }
+        let result = yield require('vizz.microservice-client').requestToMicroservice({
+            uri,
+            method: 'GET',
+            json: true
+        });
+
+        if (result.statusCode !== 200) {
+            logger.error('Error doing query:', result.body);
+            // console.error(result);
+            throw new ArcgisError('Error doing query');
+        } else {
+            return result.body;
+        }
+
     }
 
     static getMaxDateFromHistograms(histograms) {
@@ -354,7 +371,7 @@ class ArcgisService {
         let data = yield GeoStoreService.getWdpa(wdpaid);
         if(data) {
             logger.debug('Obtained geojson. Obtaining alerts');
-            let alerts = yield ArcgisService.getAlertCount(begin, end, data.geojson, confirmedOnly);
+            let alerts = yield ArcgisService.getAlertCount(begin, end, data.id, confirmedOnly);
             alerts.areaHa = data.areaHa;
             alerts.downloadUrls = ArcgisService.getDownloadUrls(data.id, begin, end);
             return alerts;
@@ -366,7 +383,7 @@ class ArcgisService {
         let data = yield GeoStoreService.getUse(useTable, id);
         if(data) {
             logger.debug('Obtained geojson. Obtaining alerts');
-            let alerts = yield ArcgisService.getAlertCount(begin, end, data.geojson, confirmedOnly);
+            let alerts = yield ArcgisService.getAlertCount(begin, end, data.id, confirmedOnly);
             alerts.areaHa = data.areaHa;
             alerts.downloadUrls = ArcgisService.getDownloadUrls(data.id, begin, end);
             return alerts;
@@ -378,7 +395,7 @@ class ArcgisService {
         let data = yield GeoStoreService.getGeostore(geostoreHash);
         if(data) {
             logger.debug('Obtained geojson. Obtaining alerts');
-            let alerts = yield ArcgisService.getAlertCount(begin, end, data.geojson.features[0].geometry, confirmedOnly);
+            let alerts = yield ArcgisService.getAlertCount(begin, end, data.id, confirmedOnly);
             alerts.areaHa = data.areaHa;
             alerts.downloadUrls = ArcgisService.getDownloadUrls(data.id, begin, end);
             return alerts;
