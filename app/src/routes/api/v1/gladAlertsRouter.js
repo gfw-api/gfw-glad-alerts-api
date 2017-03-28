@@ -116,7 +116,7 @@ class GladAlertsRouter {
                 this.throw(404, 'Use not found');
                 return;
             }
-            this.body = GladAlertsSerializer.serialize(data);
+            this.body = data;
         }catch(e){
             if(e instanceof ArcgisError){
                 this.throw(400, e.message);
@@ -137,7 +137,7 @@ class GladAlertsRouter {
                 this.throw(404, 'Wdpa not found');
                 return;
             }
-            this.body = GladAlertsSerializer.serialize(data);
+            this.body = data;
         }
         catch(e){
             if(e instanceof ArcgisError){
@@ -160,7 +160,7 @@ class GladAlertsRouter {
                 this.throw(404, 'Country not found');
                 return;
             }
-            this.body = GladAlertsSerializer.serialize(data);
+            this.body = data;
         } catch (err) {
             if (err instanceof NotFound) {
                 this.throw(404, 'Geostore not found');

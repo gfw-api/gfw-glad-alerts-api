@@ -343,8 +343,6 @@ class ArcgisService {
         if(data) {
             logger.debug('Obtained geojson. Obtaining alerts');
             let alerts = yield ArcgisService.getAlertCount(begin, end, data.id, confirmedOnly);
-            alerts.areaHa = data.areaHa;
-            alerts.downloadUrls = ArcgisService.getDownloadUrls(data.id, begin, end);
             return alerts;
         }
         return null;
@@ -355,8 +353,6 @@ class ArcgisService {
         if(data) {
             logger.debug('Obtained geojson. Obtaining alerts');
             let alerts = yield ArcgisService.getAlertCount(begin, end, data.id, confirmedOnly);
-            alerts.areaHa = data.areaHa;
-            alerts.downloadUrls = ArcgisService.getDownloadUrls(data.id, begin, end);
             return alerts;
         }
         return null;
@@ -367,8 +363,6 @@ class ArcgisService {
         if(data) {
             logger.debug('Obtained geojson. Obtaining alerts');
             let alerts = yield ArcgisService.getAlertCount(begin, end, data.id, confirmedOnly);
-            alerts.areaHa = data.areaHa;
-            alerts.downloadUrls = ArcgisService.getDownloadUrls(data.id, begin, end);
             return alerts;
         }
         return null;
