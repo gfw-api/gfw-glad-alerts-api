@@ -13,7 +13,7 @@ var gladAlertsSerializer = new JSONAPISerializer('glad-alerts', {
     keyForAttribute: 'camelCase'
 });
 
-var gladLatestSerializer = new JSONAPISerializer('imazon-latest', {
+var gladLatestSerializer = new JSONAPISerializer('glad-latest', {
     attributes: [ 'minDate', 'maxDate', 'counts'],
     typeForAttribute: function(attribute, record) {
         return attribute;
