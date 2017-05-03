@@ -372,7 +372,7 @@ class ArcgisService {
     static generateQueryDownload(dateYearBegin, yearBegin, dateYearEnd, yearEnd, table){
         let query = `select lat, long, confidence, year, julian_day from ${table} where`;
         if(yearBegin === yearEnd){
-            query += ` year = ${yearBegin} and julian_day >= ${dateYearBegin} and julian_day <= ${dateYearEnd}`;
+            query += ` year = ${yearBegin} and julian_day >= ${dateYearBegin} and julian_day <= ${dateYearEnd} ORDER BY year, julian_day`;
         } else {
             query += ' (';
             logger.debug('Datebegin', dateYearBegin, 'end', dateYearEnd);
@@ -388,7 +388,7 @@ class ArcgisService {
                     query += `(year = '${i}')`;
                 }
             }
-            query += ')';
+            query += ') ORDER BY year, julian_day';
         }
         logger.debug('Query result: ', query);
         return query;
