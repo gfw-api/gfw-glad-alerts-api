@@ -182,7 +182,7 @@ class ArcgisService {
             uri += '&confidence=3';
         }
         logger.info('Doing query to ', uri);
-        let result = yield require('vizz.microservice-client').requestToMicroservice({
+        let result = yield require('ct-register-microservice-node').requestToMicroservice({
             uri,
             method: 'GET',
             json: true
@@ -288,7 +288,7 @@ class ArcgisService {
 
         let query = ArcgisService.generateQuery(iso, id1, dateYearBegin, yearBegin, dateYearEnd, yearEnd, confirmedOnly);
         logger.info('Doing request to ', `/query/${config.get('dataset.idGlad')}?sql=${query}`);
-        let result = yield require('vizz.microservice-client').requestToMicroservice({
+        let result = yield require('ct-register-microservice-node').requestToMicroservice({
             uri: encodeURI(`/query/${config.get('dataset.idGlad')}?sql=${query}`),
             method: 'GET',
             json: true
