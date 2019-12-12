@@ -18,7 +18,7 @@ class GeoStoreService {
 
     static * getGeostoreByPath(path) {
         logger.debug('Obtaining geostore with path %s', path);
-        let result = yield require('vizz.microservice-client').requestToMicroservice({
+        let result = yield require('ct-register-microservice-node').requestToMicroservice({
             uri: '/geostore' + path,
             method: 'GET',
             json: true

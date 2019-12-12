@@ -68,7 +68,7 @@ var server = require('http').Server(app.callback());
 var port = process.env.PORT || config.get('service.port');
 
 server.listen(port, function() {
-    require('vizz.microservice-client').register({
+    require('ct-register-microservice-node').register({
         id: config.get('service.id'),
         name: config.get('service.name'),
         dirConfig: path.join(__dirname, '../microservice'),
